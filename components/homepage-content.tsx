@@ -69,12 +69,12 @@ function VideoCard({ video, index }: { video: Video; index: number }) {
         <h3 className="video-title" title={video.title}>{video.title}</h3>
         <div className="creator-scroll" tabIndex={0} aria-label={`Channel ${video.channel}; models ${video.actors.join(", ")}`}>
           <span className="creator-chip channel-chip">
-            <span className="mini-avatar channel-avatar"><Radio size={10} /></span>
+            <span className="mini-avatar channel-avatar"><Radio size={12} strokeWidth={2.1} /></span>
             <span>{video.channel}</span>
           </span>
           {video.actors.map((actor) => (
             <span className="creator-chip model-chip" key={actor}>
-              <span className="mini-avatar model-avatar"><UserRound size={10} /></span>
+              <span className="mini-avatar model-avatar"><UserRound size={12} strokeWidth={2.1} /></span>
               <span>{actor}</span>
             </span>
           ))}
