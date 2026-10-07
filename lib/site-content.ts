@@ -2,8 +2,17 @@
 export const siteContent = {
   videosHeading: "Trending Videos",
   videosDescription: "The most-watched videos right now",
+  videoFilterLabel: "Filter",
+  bestVideoLabel: "Best Video",
+  latestVideoLabel: "Latest Video",
+  videoFilterAriaLabel: "Sort videos",
   performersHeading: "Trending Pornstars",
   performersDescription: "Discover the creators everyone is watching",
   channelsHeading: "Trending Channels",
   channelsDescription: "Studios and channels making waves",
+  homeSeoHeading: "Explore Trending Videos, Creators, and Channels",
+  homeSeoDescription: "Browse popular video picks, discover creators and channels, and switch between the best-performing and latest videos to find something new on Vidubuzz.",
+  channelPageTitle: "Trending Channels",
+  channelPageSubtitle: "Explore popular channels and discover more from your favorite creators.",
+  channelPageSeoDescription: "Browse trending channels on Vidubuzz, explore their latest uploads, and find creators and videos that match your interests.",
 };

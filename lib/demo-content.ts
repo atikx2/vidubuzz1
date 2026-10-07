@@ -1,9 +1,12 @@
 export type Video = {
+  id: number;
   title: string;
   channel: string;
   performer: string;
   actors: string[];
   views: string;
+  viewCount: number;
+  hoursAgo: number;
   age: string;
   duration: string;
   image: string;
@@ -46,17 +49,27 @@ const entries: Array<[string, string, string, string, string]> = [
 
 const moreActors = ["Nico Vale", "Aria Moon", "Jules Hart", "Elise Mar", "Theo West", "Ivy Rose"];
 
+function parseViewCount(label: string) {
+  const amount = Number.parseFloat(label);
+  if (label.endsWith("M")) return amount * 1_000_000;
+  if (label.endsWith("K")) return amount * 1_000;
+  return amount;
+}
+
 export const videos: Video[] = entries.map((entry, index) => {
   const [image, imageSmall] = covers[index % covers.length];
   const extraActorCount = index % 3 === 0 ? 3 : index % 3 === 1 ? 1 : 0;
   const extras = Array.from({ length: extraActorCount }, (_, offset) => moreActors[(index + offset) % moreActors.length]);
   const actors = [entry[2], ...extras];
   return {
+    id: index,
     title: entry[0],
     channel: entry[1],
     performer: entry[2],
     actors,
     views: entry[3],
+    viewCount: parseViewCount(entry[3]),
+    hoursAgo: (index * 7) % 24 + 1,
     age: `${index + 1} hours ago`,
     duration: entry[4],
     image,

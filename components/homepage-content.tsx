@@ -1,15 +1,11 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  Play,
-  Radio,
-  Sparkles,
   Star,
-  UserRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { channels, performers, videos, type Video } from "@/lib/demo-content";
-import { Pagination } from "@/components/pagination";
+import { channels, performers } from "@/lib/demo-content";
+import { VideoListing } from "@/components/video-listing";
 import { siteContent } from "@/lib/site-content";
 
 function SectionHeading({
@@ -45,42 +41,6 @@ function SectionHeading({
         </Button>
       )}
     </div>
-  );
-}
-
-function VideoCard({ video, index }: { video: Video; index: number }) {
-  return (
-    <article id={`video-${index}`} className="video-card">
-      <div className="video-cover">
-        <picture>
-          <source srcSet={`${video.imageSmall} 240w, ${video.image} 360w`} sizes="(max-width: 600px) 100vw, (max-width: 1100px) 50vw, 25vw" />
-          <img src={video.image} alt={`Cinematic preview for ${video.title}`} width="360" height="203" loading={index < 2 ? "eager" : "lazy"} fetchPriority={index === 0 ? "high" : undefined} decoding="async" />
-        </picture>
-        <span className="cover-shade" />
-        <span className="cover-topline">
-          <span className="cover-quality"><Sparkles size={10} /> HD</span>
-          <span className="cover-views">{video.views} views</span>
-        </span>
-        <span className="cover-play"><Play size={18} fill="currentColor" /></span>
-        <span className="cover-duration">{video.duration}</span>
-        <span className={`cover-glow glow-${video.accent}`} />
-      </div>
-      <div className="video-card-info">
-        <h3 className="video-title" title={video.title}>{video.title}</h3>
-        <div className="creator-scroll" tabIndex={0} aria-label={`Channel ${video.channel}; models ${video.actors.join(", ")}`}>
-          <span className="creator-chip channel-chip">
-            <span className="mini-avatar channel-avatar"><Radio size={12} strokeWidth={2.1} /></span>
-            <span>{video.channel}</span>
-          </span>
-          {video.actors.map((actor) => (
-            <span className="creator-chip model-chip" key={actor}>
-              <span className="mini-avatar model-avatar"><UserRound size={12} strokeWidth={2.1} /></span>
-              <span>{actor}</span>
-            </span>
-          ))}
-        </div>
-      </div>
-    </article>
   );
 }
 
@@ -141,20 +101,13 @@ function ChannelSection() {
 export function HomepageContent() {
   return (
     <main className="page-shell">
-      <section className="video-section" aria-labelledby="trending-videos">
-        <SectionHeading
-          id="trending-videos"
-          title={siteContent.videosHeading}
-          description={siteContent.videosDescription}
-          heading="h1"
-        />
-        <div className="video-grid">
-          {videos.map((video, index) => <VideoCard video={video} index={index} key={`${video.title}-${index}`} />)}
-        </div>
-        <Pagination />
-      </section>
+      <VideoListing />
       <PerformerSection />
       <ChannelSection />
+      <section className="seo-copy" aria-labelledby="homepage-seo-heading">
+        <h2 id="homepage-seo-heading">{siteContent.homeSeoHeading}</h2>
+        <p>{siteContent.homeSeoDescription}</p>
+      </section>
     </main>
   );
 }
