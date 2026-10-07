@@ -276,16 +276,15 @@ button { -webkit-tap-highlight-color: transparent; }
   .video-title { margin-bottom: 7px; font-size: 14px; }
   .creator-chip { font-size: 11px; }
   .pagination-wrap { padding-top: 28px; }
-  .pagination { max-width: 100%; flex-wrap: wrap; gap: 5px; }
-  .page-number-list { gap: 1px; }
-  .page-number-group { gap: 1px; }
-  .pagination-arrow { width: 32px !important; height: 34px !important; }
-  .page-number { width: 30px; height: 34px; font-size: 10px; }
-  .page-ellipsis { letter-spacing: 0; }
-  .pagination-divider { margin: 0 4px; }
+  .pagination { width: max-content; max-width: 100%; flex-wrap: nowrap; gap: 3px; }
+  .pagination-arrow, .pagination-divider { display: none !important; }
+  .page-number-list { flex: 0 0 auto; gap: 0; }
+  .page-number-group { gap: 0; }
+  .page-number { width: 28px; height: 36px; font-size: 10px; }
+  .page-ellipsis { letter-spacing: 0; font-size: 11px; }
   .page-jump-label { display: none; }
-  .page-jump-input { width: 43px !important; }
-  .page-jump-button { padding: 0 9px !important; }
+  .page-jump-input { width: 39px !important; flex: 0 0 39px; }
+  .page-jump-button { width: 36px !important; flex: 0 0 36px; padding: 0 !important; }
   .discovery-section { padding-top: 52px; }
   .performer-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
   .performer-card { padding: 17px 7px 15px; border-radius: 13px; }
@@ -308,8 +307,8 @@ button { -webkit-tap-highlight-color: transparent; }
   .menu-trigger, .mobile-search-trigger, .account-trigger { width: 34px !important; height: 34px !important; }
   .page-shell { width: calc(100% - 24px); }
   .pagination { gap: 3px; }
-  .page-number { width: 27px; }
-  .page-jump-input { width: 38px !important; }
+  .page-number { width: 26px; height: 34px; }
+  .page-jump-input { width: 38px !important; flex-basis: 38px; }
   .footer-caption { display: none; }
 }
 

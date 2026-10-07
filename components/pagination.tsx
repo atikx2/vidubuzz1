@@ -37,7 +37,7 @@ export function Pagination() {
         <div className="page-number-list">
           {pageNumbers.map((number, index) => (
             <span className="page-number-group" key={number}>
-              {index >= 3 && <span className="page-ellipsis">···</span>}
+              {index >= 3 && <span className="page-ellipsis">…</span>}
               <button
                 type="button"
                 className={`page-number ${page === number ? "page-number-active" : ""}`}
