@@ -79,11 +79,6 @@ function VideoCard({ video, index }: { video: Video; index: number }) {
             </span>
           ))}
         </div>
-        <div className="video-subline">
-          <span>{video.age}</span>
-          <span className="subline-dot" />
-          <span>4K quality</span>
-        </div>
       </div>
     </article>
   );
