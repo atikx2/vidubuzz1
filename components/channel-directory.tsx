@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { ChevronDown, ListFilter } from "lucide-react";
 import { Pagination } from "@/components/pagination";
 import { channelDirectory } from "@/lib/demo-content";
@@ -44,16 +45,16 @@ export function ChannelDirectory() {
 
       <div className="directory-channel-grid">
         {sortedChannels.map((channel, index) => (
-          <article className="directory-channel-card" key={channel.id}>
+          <Link className="directory-channel-card" href={`/${channel.slug}/`} key={channel.id}>
             <div className={`directory-channel-avatar directory-avatar-${(index % 3) + 1}`}>
-              <img src={channel.avatar} alt="" width="240" height="135" loading="lazy" decoding="async" />
+              <img src={channel.image} alt="" width="240" height="135" loading="lazy" decoding="async" />
               <span className="directory-avatar-ring" />
             </div>
             <div className="directory-channel-copy">
               <h2>{channel.name}</h2>
               <p>{channel.videos}</p>
             </div>
-          </article>
+          </Link>
         ))}
       </div>
 

@@ -1,0 +1,77 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { SiteHeader } from "@/components/site-header";
+import { ChannelProfile } from "@/components/channel-profile";
+import { ChannelRelatedContent } from "@/components/channel-related-content";
+import { VideoListing } from "@/components/video-listing";
+import { channelDirectory, videos } from "@/lib/demo-content";
+import { siteContent } from "@/lib/site-content";
+
+type ChannelPageProps = { params: Promise<{ slug: string }> };
+
+export function generateStaticParams() {
+  return channelDirectory.map((channel) => ({ slug: channel.slug }));
+}
+
+export async function generateMetadata({ params }: ChannelPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const channel = channelDirectory.find((item) => item.slug === slug);
+  if (!channel) return {};
+
+  const title = `${channel.name} Adult Videos | Vidubuzz`;
+  return {
+    title,
+    description: channel.seoDescription,
+    alternates: { canonical: `/${channel.slug}/` },
+    robots: { index: true, follow: true },
+    openGraph: {
+      title,
+      description: channel.seoDescription,
+      type: "website",
+      siteName: "Vidubuzz",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description: channel.seoDescription,
+    },
+  };
+}
+
+export default async function ChannelPage({ params }: ChannelPageProps) {
+  const { slug } = await params;
+  const channel = channelDirectory.find((item) => item.slug === slug);
+  if (!channel) notFound();
+
+  const channelVideos = videos.filter((video) => video.channel === channel.name);
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `${channel.name} adult videos`,
+    description: channel.seoDescription,
+    isPartOf: { "@type": "WebSite", name: "Vidubuzz" },
+  };
+
+  return (
+    <>
+      <SiteHeader />
+      <main className="page-shell channel-page">
+        <ChannelProfile channel={channel} />
+        <VideoListing
+          items={channelVideos}
+          title={siteContent.channelDetailVideosHeading}
+          description={`${siteContent.channelDetailVideosDescription} ${channel.name}.`}
+          headingId="channel-videos-heading"
+          headingLevel="h2"
+          totalPages={Math.max(1, Math.ceil(channel.videoCount / 24))}
+        />
+        <ChannelRelatedContent channel={channel} videos={channelVideos} />
+        <section className="seo-copy channel-detail-seo" aria-labelledby="channel-detail-seo-heading">
+          <h2 id="channel-detail-seo-heading">{channel.name}: {siteContent.channelDetailSeoHeading}</h2>
+          <p>{channel.seoDescription}</p>
+        </section>
+      </main>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+    </>
+  );
+}

@@ -1,14 +1,25 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { ChevronDown, ListFilter, Play, Radio, Sparkles, UserRound } from "lucide-react";
 import { Pagination } from "@/components/pagination";
-import { videos, type Video } from "@/lib/demo-content";
+import { channelDirectory, videos, type Video } from "@/lib/demo-content";
 import { siteContent } from "@/lib/site-content";
 
 type SortMode = "best" | "latest";
+type VideoListingProps = {
+  items?: Video[];
+  title?: string;
+  description?: string;
+  headingId?: string;
+  headingLevel?: "h1" | "h2";
+  totalPages?: number;
+};
 
 function VideoCard({ video, position }: { video: Video; position: number }) {
+  const channel = channelDirectory.find((item) => item.name === video.channel);
+
   return (
     <article id={`video-${video.id}`} className="video-card">
       <div className="video-cover">
@@ -39,10 +50,17 @@ function VideoCard({ video, position }: { video: Video; position: number }) {
       <div className="video-card-info">
         <h3 className="video-title" title={video.title}>{video.title}</h3>
         <div className="creator-scroll" tabIndex={0} aria-label={`Channel ${video.channel}; models ${video.actors.join(", ")}`}>
-          <span className="creator-chip channel-chip">
-            <span className="mini-avatar channel-avatar"><Radio size={12} strokeWidth={2.1} /></span>
-            <span>{video.channel}</span>
-          </span>
+          {channel ? (
+            <Link className="creator-chip channel-chip" href={`/${channel.slug}/`}>
+              <span className="mini-avatar channel-avatar"><Radio size={12} strokeWidth={2.1} /></span>
+              <span>{video.channel}</span>
+            </Link>
+          ) : (
+            <span className="creator-chip channel-chip">
+              <span className="mini-avatar channel-avatar"><Radio size={12} strokeWidth={2.1} /></span>
+              <span>{video.channel}</span>
+            </span>
+          )}
           {video.actors.map((actor) => (
             <span className="creator-chip model-chip" key={actor}>
               <span className="mini-avatar model-avatar"><UserRound size={12} strokeWidth={2.1} /></span>
@@ -55,31 +73,37 @@ function VideoCard({ video, position }: { video: Video; position: number }) {
   );
 }
 
-export function VideoListing() {
+export function VideoListing({
+  items = videos,
+  title = siteContent.videosHeading,
+  description = siteContent.videosDescription,
+  headingId = "trending-videos",
+  headingLevel = "h1",
+  totalPages = 20,
+}: VideoListingProps) {
   const [sortMode, setSortMode] = useState<SortMode>("best");
   const sortedVideos = useMemo(() => {
-    const items = [...videos];
-    if (sortMode === "latest") {
-      return items.sort((a, b) => a.hoursAgo - b.hoursAgo);
-    }
-    return items.sort((a, b) => b.viewCount - a.viewCount);
-  }, [sortMode]);
+    const sortedItems = [...items];
+    if (sortMode === "latest") return sortedItems.sort((a, b) => a.hoursAgo - b.hoursAgo);
+    return sortedItems.sort((a, b) => b.viewCount - a.viewCount);
+  }, [items, sortMode]);
+  const Heading = headingLevel;
 
   return (
-    <section className="video-section" aria-labelledby="trending-videos">
+    <section className="video-section" aria-labelledby={headingId}>
       <div className="section-heading">
         <div className="section-heading-copy">
           <div className="section-title-line">
             <span className="section-marker" />
-            <h1 id="trending-videos">{siteContent.videosHeading}</h1>
+            <Heading id={headingId}>{title}</Heading>
           </div>
-          <p>{siteContent.videosDescription}</p>
+          <p>{description}</p>
         </div>
-        <label className="video-filter" htmlFor="video-sort">
+        <label className="video-filter" htmlFor={`${headingId}-sort`}>
           <ListFilter size={15} className="video-filter-icon" aria-hidden="true" />
           <span className="filter-caption">{siteContent.videoFilterLabel}</span>
           <select
-            id="video-sort"
+            id={`${headingId}-sort`}
             value={sortMode}
             onChange={(event) => setSortMode(event.target.value as SortMode)}
             aria-label={siteContent.videoFilterAriaLabel}
@@ -95,7 +119,7 @@ export function VideoListing() {
           <VideoCard video={video} position={position} key={video.id} />
         ))}
       </div>
-      <Pagination />
+      <Pagination totalPages={totalPages} />
     </section>
   );
 }

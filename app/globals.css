@@ -331,6 +331,50 @@ button { -webkit-tap-highlight-color: transparent; }
 .directory-channel-copy { min-width: 0; }
 .directory-channel-copy h2 { overflow: hidden; margin: 0; color: #faf8fb; font-size: 13px; font-weight: 680; letter-spacing: -.015em; text-overflow: ellipsis; white-space: nowrap; }
 .directory-channel-copy p { margin: 5px 0 0; color: #c4c0ca; font-size: 11px; }
+.directory-channel-card:hover { border-color: rgba(255,111,145,.42); background: linear-gradient(145deg, rgba(255,255,255,.095), rgba(255,255,255,.035)); transform: translateY(-2px); }
+
+.channel-page { padding-bottom: 30px; }
+.channel-page > .video-section { padding-top: 0; }
+.channel-profile { padding: 34px 0 28px; }
+.channel-profile-top { display: flex; align-items: center; gap: 21px; }
+.channel-profile-avatar { position: relative; width: 104px; height: 104px; flex: 0 0 104px; overflow: hidden; border: 1px solid rgba(255,255,255,.34); border-radius: 50%; background: #34303b; box-shadow: 0 8px 28px rgba(0,0,0,.26), 0 0 28px rgba(240,77,113,.1); }
+.channel-profile-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.channel-profile-avatar-ring { position: absolute; inset: 4px; border: 1px solid rgba(255,255,255,.46); border-radius: inherit; pointer-events: none; }
+.channel-profile-identity { min-width: 0; }
+.channel-profile-eyebrow { margin: 0 0 5px; color: #ef8297; font-size: 10px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+.channel-profile-identity h1 { margin: 0; color: #fff; font-size: clamp(24px, 3.2vw, 35px); font-weight: 760; letter-spacing: -.045em; line-height: 1.13; }
+.channel-profile-stats { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 12px; }
+.channel-profile-stats span { display: inline-flex; align-items: center; gap: 7px; color: #d2ced8; font-size: 12px; font-weight: 560; }
+.channel-profile-stats svg { color: #ed718b; }
+.channel-description { display: flex; align-items: flex-end; gap: 10px; max-width: 900px; margin-top: 19px; }
+.channel-description p { display: -webkit-box; overflow: hidden; margin: 0; color: #c4c0ca; font-size: 13px; line-height: 1.7; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.channel-description-expanded p { display: block; }
+.channel-description-toggle { flex: 0 0 auto; padding: 0 0 2px; border: 0; background: none; color: #ff829b; cursor: pointer; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.channel-description-toggle:hover { color: #ffb1c0; }
+.channel-related-content { display: grid; gap: 31px; padding-top: 34px; }
+.channel-related-section { min-width: 0; }
+.channel-related-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin-bottom: 15px; }
+.channel-related-heading > div { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.channel-related-heading .section-marker { height: 19px; }
+.channel-related-heading h2 { overflow: hidden; margin: 0; color: #faf9fb; font-size: 18px; font-weight: 710; letter-spacing: -.035em; text-overflow: ellipsis; white-space: nowrap; }
+.channel-related-heading > p { margin: 0; color: #aaa6b2; font-size: 11px; white-space: nowrap; }
+.channel-related-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 2px 1px 8px; overscroll-behavior-x: contain; scrollbar-width: none; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+.channel-related-scroll::-webkit-scrollbar { display: none; }
+.related-channel-card, .related-performer-card { position: relative; display: flex; align-items: center; gap: 11px; min-width: 222px; min-height: 78px; flex: 0 0 222px; padding: 10px; border: 1px solid rgba(255,255,255,.13); border-radius: 13px; background: linear-gradient(145deg, rgba(255,255,255,.075), rgba(255,255,255,.025)); scroll-snap-align: start; transition: border-color .18s, background .18s, transform .18s; }
+.related-channel-card:hover { transform: translateY(-2px); border-color: rgba(255,111,145,.42); background: rgba(255,255,255,.075); }
+.related-channel-image, .related-performer-image { position: relative; display: grid; place-items: center; width: 54px; height: 54px; flex: 0 0 54px; overflow: hidden; border: 1px solid rgba(255,255,255,.24); border-radius: 50%; background: #34303b; }
+.related-channel-image img, .related-performer-image img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.related-image-2 { border-color: rgba(193,162,255,.62); }
+.related-image-3 { border-color: rgba(255,182,126,.66); }
+.related-card-copy { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 6px; }
+.related-card-copy strong { overflow: hidden; color: #f8f6fa; font-size: 12px; font-weight: 680; text-overflow: ellipsis; white-space: nowrap; }
+.related-card-copy > span { display: inline-flex; align-items: center; gap: 5px; color: #bdb9c4; font-size: 10px; }
+.related-card-copy > span svg { color: #e9758e; }
+.related-card-arrow { flex: 0 0 auto; color: #a6a2ad; }
+.related-performer-card { min-width: 196px; flex-basis: 196px; }
+.related-performer-image { width: 55px; height: 55px; }
+.related-performer-icon { position: absolute; right: 0; bottom: 0; display: grid; place-items: center; width: 22px; height: 22px; border: 1px solid #292631; border-radius: 50%; background: #3b334a; color: #f1ddff; }
+.channel-detail-seo { margin-bottom: 20px; }
 @media (max-width: 1100px) {
   .header-inner { grid-template-columns: 200px minmax(240px, 1fr) 180px; gap: 20px; padding: 0 28px; }
   .page-shell { width: min(100% - 56px, 1360px); }
@@ -384,6 +428,27 @@ button { -webkit-tap-highlight-color: transparent; }
   .directory-channel-avatar { width: 48px; height: 48px; flex-basis: 48px; }
   .directory-channel-copy h2 { font-size: 11px; }
   .directory-channel-copy p { margin-top: 4px; font-size: 9px; }
+  .channel-profile { padding: 25px 0 22px; }
+  .channel-profile-top { gap: 14px; }
+  .channel-profile-avatar { width: 78px; height: 78px; flex-basis: 78px; }
+  .channel-profile-eyebrow { margin-bottom: 4px; font-size: 9px; }
+  .channel-profile-identity h1 { font-size: 25px; }
+  .channel-profile-stats { gap: 12px; margin-top: 9px; }
+  .channel-profile-stats span { gap: 5px; font-size: 10px; }
+  .channel-profile-stats svg { width: 14px; height: 14px; }
+  .channel-description { gap: 7px; margin-top: 14px; }
+  .channel-description p { font-size: 11px; line-height: 1.65; }
+  .channel-description-toggle { font-size: 10px; }
+  .channel-page > .video-section .section-heading h2 { font-size: 19px; }
+  .channel-related-content { gap: 25px; padding-top: 28px; }
+  .channel-related-heading { align-items: flex-start; margin-bottom: 12px; }
+  .channel-related-heading h2 { font-size: 16px; }
+  .channel-related-heading > p { display: none; }
+  .channel-related-scroll { gap: 9px; margin-right: -16px; padding-right: 16px; }
+  .related-channel-card, .related-performer-card { min-width: 196px; min-height: 71px; flex-basis: 196px; padding: 8px; }
+  .related-channel-image, .related-performer-image { width: 49px; height: 49px; flex-basis: 49px; }
+  .related-card-copy strong { font-size: 11px; }
+  .related-card-copy > span { font-size: 9px; }
   .discovery-section { padding-top: 52px; }
   .performer-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
   .performer-card { padding: 17px 7px 15px; border-radius: 13px; }

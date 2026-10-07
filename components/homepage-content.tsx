@@ -4,7 +4,7 @@ import {
   Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { channels, performers } from "@/lib/demo-content";
+import { channelDirectory, channels, performers } from "@/lib/demo-content";
 import { VideoListing } from "@/components/video-listing";
 import { siteContent } from "@/lib/site-content";
 
@@ -80,19 +80,22 @@ function ChannelSection() {
         link="/channels/"
       />
       <div className="channel-grid">
-        {channels.map((channel, index) => (
-          <article className="channel-card" key={channel.name}>
-            <div className={`channel-logo ${channel.tone}`}>
-              <span>{channel.mark}</span>
-              <span className="channel-logo-orbit" />
-            </div>
-            <div className="channel-copy">
-              <strong>{channel.name}</strong>
-              <span>{channel.videos}</span>
-            </div>
-            <span className="channel-arrow"><ArrowRight size={15} /></span>
-          </article>
-        ))}
+        {channels.map((channel) => {
+          const detail = channelDirectory.find((item) => item.name === channel.name);
+          return (
+            <Link className="channel-card" href={detail ? `/${detail.slug}/` : "/channels/"} key={channel.name}>
+              <div className={`channel-logo ${channel.tone}`}>
+                <span>{channel.mark}</span>
+                <span className="channel-logo-orbit" />
+              </div>
+              <div className="channel-copy">
+                <strong>{channel.name}</strong>
+                <span>{channel.videos}</span>
+              </div>
+              <span className="channel-arrow"><ArrowRight size={15} /></span>
+            </Link>
+          );
+        })}
       </div>
     </section>
   );
