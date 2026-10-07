@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowUpRight,
@@ -95,16 +94,8 @@ function SearchBox({
           </button>
         )}
       </div>
-      <AnimatePresence>
-        {query && (
-          <motion.div
-            className="search-results"
-            initial={{ opacity: 0, y: 7, scale: 0.985 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 5, scale: 0.99 }}
-            transition={{ duration: 0.16 }}
-            role="listbox"
-          >
+      {query && (
+          <div className="search-results" role="listbox">
             <div className="search-results-heading">
               <span>LIVE RESULTS</span>
               <span>{results.length ? `${results.length} matches` : "No matches"}</span>
@@ -136,9 +127,8 @@ function SearchBox({
             {results.length > 0 && (
               <div className="search-footnote"><Sparkles size={12} /> Matches video titles, models, and channels</div>
             )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+      )}
     </div>
   );
 }
@@ -213,29 +203,14 @@ export function SiteHeader() {
         </div>
       </div>
 
-      <AnimatePresence>
-        {mobileSearchOpen && (
-          <motion.div
-            className="mobile-search-row"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-          >
+      {mobileSearchOpen && (
+          <div className="mobile-search-row">
             <SearchBox value={searchValue} onChange={setSearchValue} onClose={closeMobileSearch} mobile />
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+      )}
 
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.nav
-            className="menu-popover"
-            aria-label="Main menu"
-            initial={{ opacity: 0, y: 8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 6, scale: 0.99 }}
-            transition={{ duration: 0.16 }}
-          >
+      {menuOpen && (
+          <nav className="menu-popover" aria-label="Main menu">
             <div className="menu-popover-top">
               <span>Explore</span>
               <span className="menu-live"><i /> TRENDING</span>
@@ -248,9 +223,8 @@ export function SiteHeader() {
               </Link>
             ))}
             <div className="menu-popover-bottom">Fresh picks. Every day.</div>
-          </motion.nav>
-        )}
-      </AnimatePresence>
+          </nav>
+      )}
     </header>
   );
 }

@@ -1,12 +1,6 @@
-"use client";
-
 import Link from "next/link";
-import { useState } from "react";
-import { motion } from "framer-motion";
 import {
   ArrowRight,
-  ChevronLeft,
-  ChevronRight,
   Play,
   Radio,
   Sparkles,
@@ -14,8 +8,8 @@ import {
   UserRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { channels, performers, videos, type Video } from "@/lib/demo-content";
+import { Pagination } from "@/components/pagination";
 import { siteContent } from "@/lib/site-content";
 
 function SectionHeading({
@@ -56,17 +50,11 @@ function SectionHeading({
 
 function VideoCard({ video, index }: { video: Video; index: number }) {
   return (
-    <motion.article
-      id={`video-${index}`}
-      className="video-card"
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.38, delay: Math.min(index * 0.018, 0.28), ease: [0.21, 0.6, 0.35, 1] }}
-    >
+    <article id={`video-${index}`} className="video-card">
       <div className="video-cover">
         <picture>
           <source srcSet={`${video.imageSmall} 240w, ${video.image} 360w`} sizes="(max-width: 600px) 100vw, (max-width: 1100px) 50vw, 25vw" />
-          <img src={video.image} alt={`Cinematic preview for ${video.title}`} width="360" height="203" loading={index < 4 ? "eager" : "lazy"} />
+          <img src={video.image} alt={`Cinematic preview for ${video.title}`} width="360" height="203" loading={index < 2 ? "eager" : "lazy"} fetchPriority={index === 0 ? "high" : undefined} decoding="async" />
         </picture>
         <span className="cover-shade" />
         <span className="cover-topline">
@@ -97,83 +85,7 @@ function VideoCard({ video, index }: { video: Video; index: number }) {
           <span>4K quality</span>
         </div>
       </div>
-    </motion.article>
-  );
-}
-
-function Pagination({
-  page,
-  setPage,
-}: {
-  page: number;
-  setPage: (page: number) => void;
-}) {
-  const [inputValue, setInputValue] = useState("");
-  const pageNumbers = [1, 2, 3, 5, 15, 20];
-  const jump = () => {
-    const requestedPage = Number.parseInt(inputValue, 10);
-    if (Number.isFinite(requestedPage)) {
-      setPage(Math.min(20, Math.max(1, requestedPage)));
-      setInputValue("");
-    }
-  };
-
-  return (
-    <nav className="pagination" aria-label="Video pages">
-      <Button
-        variant="outline"
-        size="icon"
-        className="pagination-arrow"
-        onClick={() => setPage(Math.max(1, page - 1))}
-        disabled={page === 1}
-        aria-label="Previous page"
-      >
-        <ChevronLeft size={16} />
-      </Button>
-      <div className="page-number-list">
-        {pageNumbers.map((number, index) => (
-          <span className="page-number-group" key={number}>
-            {index >= 3 && <span className="page-ellipsis">···</span>}
-            <button
-              type="button"
-              className={`page-number ${page === number ? "page-number-active" : ""}`}
-              aria-current={page === number ? "page" : undefined}
-              onClick={() => setPage(number)}
-            >
-              {number}
-            </button>
-          </span>
-        ))}
-      </div>
-      <Button
-        variant="outline"
-        size="icon"
-        className="pagination-arrow"
-        onClick={() => setPage(Math.min(20, page + 1))}
-        disabled={page === 20}
-        aria-label="Next page"
-      >
-        <ChevronRight size={16} />
-      </Button>
-      <span className="pagination-divider" />
-      <label className="page-jump-label" htmlFor="page-jump">Go to</label>
-      <Input
-        id="page-jump"
-        type="number"
-        min={1}
-        max={20}
-        inputMode="numeric"
-        placeholder="#"
-        className="page-jump-input"
-        value={inputValue}
-        onChange={(event) => setInputValue(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key === "Enter") jump();
-        }}
-        aria-label="Enter page number"
-      />
-      <Button variant="secondary" size="sm" onClick={jump} className="page-jump-button">Go</Button>
-    </nav>
+    </article>
   );
 }
 
@@ -188,22 +100,15 @@ function PerformerSection() {
       />
       <div className="performer-grid">
         {performers.map((performer, index) => (
-          <motion.article
-            className="performer-card"
-            key={performer.name}
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{ duration: 0.32, delay: index * 0.035 }}
-          >
+          <article className="performer-card" key={performer.name}>
             <div className={`performer-portrait ${performer.tone}`}>
-              <img src={`/media/thumb-0${(index % 3) + 1}-240x135.jpg`} alt="" loading="lazy" />
+              <img src={`/media/thumb-0${(index % 3) + 1}-240x135.jpg`} alt="" loading="lazy" decoding="async" />
               <span className="portrait-ring" />
               <span className="performer-star"><Star size={11} fill="currentColor" /></span>
             </div>
             <div className="performer-name">{performer.name}</div>
             <div className="performer-count">{performer.videos}</div>
-          </motion.article>
+          </article>
         ))}
       </div>
     </section>
@@ -221,14 +126,7 @@ function ChannelSection() {
       />
       <div className="channel-grid">
         {channels.map((channel, index) => (
-          <motion.article
-            className="channel-card"
-            key={channel.name}
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{ duration: 0.32, delay: index * 0.035 }}
-          >
+          <article className="channel-card" key={channel.name}>
             <div className={`channel-logo ${channel.tone}`}>
               <span>{channel.mark}</span>
               <span className="channel-logo-orbit" />
@@ -238,7 +136,7 @@ function ChannelSection() {
               <span>{channel.videos}</span>
             </div>
             <span className="channel-arrow"><ArrowRight size={15} /></span>
-          </motion.article>
+          </article>
         ))}
       </div>
     </section>
@@ -246,8 +144,6 @@ function ChannelSection() {
 }
 
 export function HomepageContent() {
-  const [page, setPage] = useState(1);
-
   return (
     <main className="page-shell">
       <section className="video-section" aria-labelledby="trending-videos">
@@ -260,10 +156,7 @@ export function HomepageContent() {
         <div className="video-grid">
           {videos.map((video, index) => <VideoCard video={video} index={index} key={`${video.title}-${index}`} />)}
         </div>
-        <div className="pagination-wrap">
-          <div className="pagination-note"><span className="pagination-pulse" /> Page {page} <span className="pagination-note-muted">of 20</span></div>
-          <Pagination page={page} setPage={setPage} />
-        </div>
+        <Pagination />
       </section>
       <PerformerSection />
       <ChannelSection />
