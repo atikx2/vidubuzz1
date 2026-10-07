@@ -95,3 +95,32 @@ export const channels = [
   { name: "Blue Room", videos: "89 videos", mark: "BR", tone: "channel-blue" },
   { name: "Private Edit", videos: "74 videos", mark: "PE", tone: "channel-rose" },
 ];
+
+export type DirectoryChannel = {
+  id: number;
+  name: string;
+  videos: string;
+  videoCount: number;
+  avatar: string;
+};
+
+const channelDirectoryEntries: Array<[string, number]> = [
+  ["Velvet Room", 284],
+  ["Noir Studio", 196],
+  ["Golden Hour", 152],
+  ["Afterglow", 121],
+  ["Blue Room", 89],
+  ["Private Edit", 74],
+  ["Studio Ember", 61],
+  ["The Midnight Edit", 48],
+  ["Luna House", 35],
+  ["Modern Muse", 24],
+];
+
+export const channelDirectory: DirectoryChannel[] = channelDirectoryEntries.map(([name, videoCount], id) => ({
+  id,
+  name,
+  videoCount,
+  videos: `${videoCount} videos`,
+  avatar: `/media/thumb-0${(id % 3) + 1}-240x135.jpg`,
+}));
