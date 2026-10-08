@@ -4,6 +4,7 @@ export type Video = {
   channel: string;
   performer: string;
   actors: string[];
+  categories: string[];
   views: string;
   viewCount: number;
   hoursAgo: number;
@@ -24,6 +25,8 @@ const demoChannelNames = [
   "Velvet Room", "Noir Studio", "Golden Hour", "Afterglow", "Blue Room",
   "Private Edit", "Studio Ember", "The Midnight Edit", "Luna House", "Modern Muse",
 ];
+
+const demoCategorySlugs = ["amateur", "black", "asian", "blonde", "brunette", "milf", "lesbian", "pov", "couples", "anal"];
 
 const entries: Array<[string, string, string, string]> = [
   ["A Weekend in the City Lights", "Maya Sol", "2.4M", "18:42"],
@@ -72,6 +75,10 @@ export const videos: Video[] = entries.map((entry, index) => {
     channel: demoChannelNames[index % demoChannelNames.length],
     performer: entry[1],
     actors,
+    categories: Array.from(new Set([
+      demoCategorySlugs[index % demoCategorySlugs.length],
+      demoCategorySlugs[(index + 3) % demoCategorySlugs.length],
+    ])),
     views: entry[2],
     viewCount: parseViewCount(entry[2]),
     hoursAgo: (index * 7) % 24 + 1,
@@ -171,4 +178,50 @@ if (channelSlugs.some((slug) => !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) || new
 const allDetailSlugs = [...channelDirectory.map((channel) => channel.slug), ...performers.map((performer) => performer.slug)];
 if (allDetailSlugs.some((slug) => !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) || new Set(allDetailSlugs).size !== allDetailSlugs.length) {
   throw new Error("Channel and performer detail slugs must be globally unique flat slugs.");
+}
+
+export type DirectoryCategory = {
+  id: number;
+  slug: string;
+  name: string;
+  videoCount: number;
+  videos: string;
+  image: string;
+  description: string;
+  seoDescription: string;
+};
+
+type CategoryAdminFields = Omit<DirectoryCategory, "id" | "videos" | "seoDescription">;
+
+function categoryDescription(name: string) {
+  return `Browse the ${name} category on Vidubuzz, with a curated selection of adult videos and featured performers. Explore popular uploads, find related categories, and discover more videos from channels across the site.`;
+}
+
+// Placeholder taxonomy for the directory layout; replace with the approved category export when available.
+const categoryDirectoryEntries: CategoryAdminFields[] = [
+  { slug: "amateur", name: "Amateur", videoCount: 1240, image: "/media/thumb-01-240x135.jpg", description: categoryDescription("Amateur") },
+  { slug: "black", name: "Black", videoCount: 998, image: "/media/thumb-02-240x135.jpg", description: categoryDescription("Black") },
+  { slug: "asian", name: "Asian", videoCount: 870, image: "/media/thumb-03-240x135.jpg", description: categoryDescription("Asian") },
+  { slug: "blonde", name: "Blonde", videoCount: 742, image: "/media/thumb-01-240x135.jpg", description: categoryDescription("Blonde") },
+  { slug: "brunette", name: "Brunette", videoCount: 681, image: "/media/thumb-02-240x135.jpg", description: categoryDescription("Brunette") },
+  { slug: "milf", name: "MILF", videoCount: 554, image: "/media/thumb-03-240x135.jpg", description: categoryDescription("MILF") },
+  { slug: "lesbian", name: "Lesbian", videoCount: 483, image: "/media/thumb-01-240x135.jpg", description: categoryDescription("Lesbian") },
+  { slug: "pov", name: "POV", videoCount: 376, image: "/media/thumb-02-240x135.jpg", description: categoryDescription("POV") },
+  { slug: "couples", name: "Couples", videoCount: 291, image: "/media/thumb-03-240x135.jpg", description: categoryDescription("Couples") },
+  { slug: "anal", name: "Anal", videoCount: 214, image: "/media/thumb-01-240x135.jpg", description: categoryDescription("Anal") },
+];
+
+export const categoryDirectory: DirectoryCategory[] = categoryDirectoryEntries.map((category, id) => ({
+  ...category,
+  id,
+  videos: `${category.videoCount} videos`,
+  seoDescription: `Explore ${category.name} adult videos on Vidubuzz. Browse popular uploads, discover featured performers, and find related categories.`,
+}));
+
+const categorySlugs = categoryDirectory.map((category) => category.slug);
+if (categorySlugs.some((slug) => !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) || new Set(categorySlugs).size !== categorySlugs.length) {
+  throw new Error("Category slugs must be unique flat slugs in lowercase kebab case.");
+}
+if (demoCategorySlugs.some((slug) => !categorySlugs.includes(slug))) {
+  throw new Error("Every demo video category must exist in the category directory.");
 }

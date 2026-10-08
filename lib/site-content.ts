@@ -39,4 +39,11 @@ export const siteContent = {
   similarPerformersHeading: "Similar performers",
   featuredChannelsHeading: "Channels featuring this performer",
   performerDetailSeoHeading: "Explore Adult Videos and Featured Channels",
+  categoriesPageTitle: "All Categories",
+  categoriesPageSubtitle: "Explore adult video categories and browse popular uploads by topic.",
+  categoriesPageSeoHeading: "Browse Adult Video Categories",
+  categoriesPageSeoDescription: "Explore popular adult video categories on Vidubuzz, browse videos by topic, and discover performers and channels featured in the collection.",
+  categoryDetailVideosHeading: "Videos in this category",
+  categoryDetailVideosDescription: "Browse popular uploads in this category and sort by best or latest.",
+  relatedCategoriesHeading: "Related categories",
 };

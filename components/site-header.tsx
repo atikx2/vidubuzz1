@@ -20,6 +20,7 @@ const jumpLinks = [
   { label: "Trending videos", href: "/#trending-videos" },
   { label: "All pornstars", href: "/pornstars/" },
   { label: "All channels", href: "/channels/" },
+  { label: "All categories", href: "/categories/" },
 ];
 
 function BrandMark() {
