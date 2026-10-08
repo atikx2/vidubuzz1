@@ -309,8 +309,8 @@ button { -webkit-tap-highlight-color: transparent; }
 .channel-arrow { display: grid; place-items: center; width: 29px; height: 29px; flex: 0 0 29px; border: 1px solid rgba(255,255,255,.13); border-radius: 9px; color: #c2bec8; transition: color .18s, background .18s, transform .18s; }
 .channel-card:hover .channel-arrow { transform: translateX(2px); background: rgba(240,77,113,.14); color: #ff819a; }
 
-.channel-directory { padding-top: 40px; }
-.channel-directory-heading { margin-bottom: 26px; }
+.channel-directory, .performer-directory { padding-top: 40px; }
+.channel-directory-heading, .performer-directory-heading { margin-bottom: 26px; }
 .directory-channel-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
 .directory-channel-card {
   display: flex;
@@ -421,8 +421,8 @@ button { -webkit-tap-highlight-color: transparent; }
   .pagination-pages { gap: 5px; }
   .pagination-page { width: 35px; height: 35px; flex-basis: 35px; font-size: 12px; }
   .pagination-ellipsis { font-size: 13px; }
-  .channel-directory { padding-top: 28px; }
-  .channel-directory-heading { margin-bottom: 20px; }
+  .channel-directory, .performer-directory { padding-top: 28px; }
+  .channel-directory-heading, .performer-directory-heading { margin-bottom: 20px; }
   .directory-channel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
   .directory-channel-card { gap: 9px; padding: 10px 8px; border-radius: 13px; }
   .directory-channel-avatar { width: 48px; height: 48px; flex-basis: 48px; }
@@ -473,7 +473,7 @@ button { -webkit-tap-highlight-color: transparent; }
   .brand-symbol { width: 29px; height: 29px; }
   .menu-trigger, .mobile-search-trigger, .account-trigger { width: 34px !important; height: 34px !important; }
   .page-shell { width: calc(100% - 24px); }
-  .video-section .section-heading h1, .channel-directory-heading h1 { font-size: 18px; }
+  .video-section .section-heading h1, .channel-directory-heading h1, .performer-directory-heading h1 { font-size: 18px; }
   .pagination-pages { gap: 3px; }
   .pagination-page { width: 32px; height: 32px; flex-basis: 32px; font-size: 11px; }
   .pagination-ellipsis { font-size: 12px; }

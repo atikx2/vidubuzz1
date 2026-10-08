@@ -17,9 +17,9 @@ import { Input } from "@/components/ui/input";
 import { videos } from "@/lib/demo-content";
 
 const jumpLinks = [
-  { label: "Trending videos", href: "#trending-videos" },
-  { label: "Trending pornstars", href: "#trending-pornstars" },
-  { label: "Trending channels", href: "#trending-channels" },
+  { label: "Trending videos", href: "/#trending-videos" },
+  { label: "All pornstars", href: "/pornstars/" },
+  { label: "All channels", href: "/channels/" },
 ];
 
 function BrandMark() {

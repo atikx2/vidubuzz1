@@ -83,14 +83,37 @@ export const videos: Video[] = entries.map((entry, index) => {
   };
 });
 
-export const performers = [
-  { name: "Maya Sol", videos: "128 videos", tone: "portrait-one" },
-  { name: "Lena Vale", videos: "94 videos", tone: "portrait-two" },
-  { name: "Amara Voss", videos: "76 videos", tone: "portrait-three" },
-  { name: "Sofia Lane", videos: "63 videos", tone: "portrait-two" },
-  { name: "Jade Rivers", videos: "51 videos", tone: "portrait-one" },
-  { name: "Mila Hart", videos: "47 videos", tone: "portrait-three" },
+export type PerformerProfile = {
+  id: number;
+  slug: string;
+  name: string;
+  videos: string;
+  videoCount: number;
+  totalViews: string;
+  tone: string;
+  image: string;
+  description: string;
+  seoDescription: string;
+};
+
+type PerformerAdminFields = Omit<PerformerProfile, "id" | "videos" | "description" | "seoDescription">;
+
+const performerDirectoryEntries: PerformerAdminFields[] = [
+  { slug: "maya-sol", name: "Maya Sol", videoCount: 128, totalViews: "6.2M", tone: "portrait-one", image: "/media/thumb-01-240x135.jpg" },
+  { slug: "lena-vale", name: "Lena Vale", videoCount: 94, totalViews: "4.8M", tone: "portrait-two", image: "/media/thumb-02-240x135.jpg" },
+  { slug: "amara-voss", name: "Amara Voss", videoCount: 76, totalViews: "3.9M", tone: "portrait-three", image: "/media/thumb-03-240x135.jpg" },
+  { slug: "sofia-lane", name: "Sofia Lane", videoCount: 63, totalViews: "3.1M", tone: "portrait-two", image: "/media/thumb-01-240x135.jpg" },
+  { slug: "jade-rivers", name: "Jade Rivers", videoCount: 51, totalViews: "2.7M", tone: "portrait-one", image: "/media/thumb-02-240x135.jpg" },
+  { slug: "mila-hart", name: "Mila Hart", videoCount: 47, totalViews: "2.2M", tone: "portrait-three", image: "/media/thumb-03-240x135.jpg" },
 ];
+
+export const performers: PerformerProfile[] = performerDirectoryEntries.map((performer, id) => ({
+  ...performer,
+  id,
+  videos: `${performer.videoCount} videos`,
+  description: `Explore ${performer.name} on Vidubuzz, including featured adult videos, popular appearances, and creator collaborations. Browse the latest uploads, revisit standout performances, and discover channels featuring ${performer.name}.`,
+  seoDescription: `Explore ${performer.name}'s adult video collection on Vidubuzz. Browse popular videos, view profile statistics, and discover channels and creators featured alongside ${performer.name}.`,
+}));
 
 export const channels = [
   { name: "Velvet Room", videos: "284 videos", mark: "VR", tone: "channel-rose" },
@@ -143,4 +166,9 @@ export const channelDirectory: DirectoryChannel[] = channelDirectoryEntries.map(
 const channelSlugs = channelDirectory.map((channel) => channel.slug);
 if (channelSlugs.some((slug) => !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) || new Set(channelSlugs).size !== channelSlugs.length) {
   throw new Error("Channel slugs must be unique flat slugs in lowercase kebab case.");
+}
+
+const allDetailSlugs = [...channelDirectory.map((channel) => channel.slug), ...performers.map((performer) => performer.slug)];
+if (allDetailSlugs.some((slug) => !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) || new Set(allDetailSlugs).size !== allDetailSlugs.length) {
+  throw new Error("Channel and performer detail slugs must be globally unique flat slugs.");
 }

@@ -54,16 +54,16 @@ function PerformerSection() {
         link="/pornstars/"
       />
       <div className="performer-grid">
-        {performers.map((performer, index) => (
-          <article className="performer-card" key={performer.name}>
+        {performers.map((performer) => (
+          <Link className="performer-card" href={`/${performer.slug}/`} key={performer.name}>
             <div className={`performer-portrait ${performer.tone}`}>
-              <img src={`/media/thumb-0${(index % 3) + 1}-240x135.jpg`} alt="" loading="lazy" decoding="async" />
+              <img src={performer.image} alt="" loading="lazy" decoding="async" />
               <span className="portrait-ring" />
               <span className="performer-star"><Star size={11} fill="currentColor" /></span>
             </div>
             <div className="performer-name">{performer.name}</div>
             <div className="performer-count">{performer.videos}</div>
-          </article>
+          </Link>
         ))}
       </div>
     </section>
