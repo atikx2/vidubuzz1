@@ -1,0 +1,7 @@
+# Copy to .dev.vars for the local Pages emulator only; never commit .dev.vars.
+ADMIN_EMAIL="atikhasan315377@gmail.com"
+# Set to the requested initial password, then change it from the admin profile.
+ADMIN_INITIAL_PASSWORD=""
+# Generate TWO DIFFERENT random secrets (32+ characters each).
+ADMIN_PASSWORD_PEPPER=""
+ADMIN_SESSION_SECRET=""

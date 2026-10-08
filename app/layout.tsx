@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { AnalyticsTracker } from "@/components/analytics-tracker";
 
 export const metadata: Metadata = {
   title: "Trending Videos | Vidubuzz",
@@ -22,7 +23,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <AnalyticsTracker />
+        {children}
+      </body>
     </html>
   );
 }

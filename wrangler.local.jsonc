@@ -1,0 +1,14 @@
+{
+  // Local emulator only. Production/Preview DB and secrets belong in Pages settings.
+  "name": "vidubuzz-local",
+  "compatibility_date": "2026-10-08",
+  "pages_build_output_dir": "./out",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "vidubuzz-admin-local",
+      "database_id": "local-admin",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

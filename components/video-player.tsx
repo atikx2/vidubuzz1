@@ -11,6 +11,7 @@ import {
   VolumeX,
 } from "lucide-react";
 import type { VideoSource } from "@/lib/video-sources";
+import { recordAnalyticsEvent } from "@/lib/analytics-client";
 
 function formatTime(seconds: number) {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
@@ -24,9 +25,11 @@ type VideoPlayerProps = {
   poster: string;
   sources: VideoSource[];
   title: string;
+  videoId: number;
 };
 
-export function VideoPlayer({ poster, sources, title }: VideoPlayerProps) {
+export function VideoPlayer({ poster, sources, title, videoId }: VideoPlayerProps) {
+  const videoTracked = useRef<number | null>(null);
   const playerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const pendingQualitySwitch = useRef<{ time: number; resume: boolean } | null>(null);
@@ -127,6 +130,12 @@ export function VideoPlayer({ poster, sources, title }: VideoPlayerProps) {
           playsInline
           muted={muted}
           onPlay={() => setPlaying(true)}
+          onPlaying={() => {
+            if (videoTracked.current !== videoId) {
+              videoTracked.current = videoId;
+              recordAnalyticsEvent("video_view", window.location.pathname, videoId);
+            }
+          }}
           onPause={() => setPlaying(false)}
           onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
           onLoadedMetadata={handleLoadedMetadata}

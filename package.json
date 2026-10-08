@@ -6,7 +6,10 @@
     "dev": "next dev --hostname 0.0.0.0",
     "build": "next build",
     "start": "next start --hostname 0.0.0.0",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "pages:dev": "wrangler pages dev out --d1 DB=local-admin --compatibility-date 2026-10-08 --ip 0.0.0.0 --port 8788",
+    "db:local": "wrangler d1 execute DB --config wrangler.local.jsonc --local --file migrations/0001_admin_analytics.sql"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
@@ -25,10 +28,15 @@
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "tailwindcss": "^4.1.13",
-    "typescript": "^5.9.2"
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.2",
+    "wrangler": "^4.148.0"
   },
   "overrides": {
     "postcss": "^8.5.29",
     "sharp": "^0.35.5"
+  },
+  "engines": {
+    "node": ">=22.17.0"
   }
 }

@@ -74,7 +74,7 @@ export default async function VideoPage({ params }: VideoPageProps) {
     <>
       <SiteHeader />
       <main className="page-shell video-page">
-        <VideoPlayer poster={video.image} sources={sources} title={video.title} />
+        <VideoPlayer poster={video.image} sources={sources} title={video.title} videoId={video.id} />
         <VideoPageInfo video={video} />
         <RelatedVideos videos={relatedVideos} />
       </main>
