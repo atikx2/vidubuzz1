@@ -7,6 +7,9 @@ export type Video = {
   categories: string[];
   views: string;
   viewCount: number;
+  likes: string;
+  dislikes: string;
+  description: string;
   hoursAgo: number;
   age: string;
   duration: string;
@@ -81,8 +84,11 @@ export const videos: Video[] = entries.map((entry, index) => {
     ])),
     views: entry[2],
     viewCount: parseViewCount(entry[2]),
+    likes: `${Math.max(1, Math.round((parseViewCount(entry[2]) * 0.018) / 1000))}K`,
+    dislikes: `${Math.max(1, Math.round((parseViewCount(entry[2]) * 0.0008) / 1000))}K`,
+    description: `Watch ${entry[0]} featuring ${entry[1]} on Vidubuzz. Explore the selected categories, discover related videos, and browse more uploads from ${demoChannelNames[index % demoChannelNames.length]}.`,
     hoursAgo: (index * 7) % 24 + 1,
-    age: `${index + 1} hours ago`,
+    age: index === 0 ? "1 day ago" : `${index + 1} days ago`,
     duration: entry[3],
     image,
     imageSmall,

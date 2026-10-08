@@ -22,7 +22,7 @@ function VideoCard({ video, position }: { video: Video; position: number }) {
 
   return (
     <article id={`video-${video.id}`} className="video-card">
-      <div className="video-cover">
+      <Link className="video-cover" href={`/video/${video.id}/`} aria-label={`Open ${video.title}`}>
         <picture>
           <source
             srcSet={`${video.imageSmall} 240w, ${video.image} 360w`}
@@ -46,9 +46,9 @@ function VideoCard({ video, position }: { video: Video; position: number }) {
         <span className="cover-play"><Play size={18} fill="currentColor" /></span>
         <span className="cover-duration">{video.duration}</span>
         <span className={`cover-glow glow-${video.accent}`} />
-      </div>
+      </Link>
       <div className="video-card-info">
-        <h3 className="video-title" title={video.title}>{video.title}</h3>
+        <h3 className="video-title" title={video.title}><Link href={`/video/${video.id}/`}>{video.title}</Link></h3>
         <div className="creator-scroll" tabIndex={0} aria-label={`Channel ${video.channel}; models ${video.actors.join(", ")}`}>
           {channel ? (
             <Link className="creator-chip channel-chip" href={`/${channel.slug}/`}>

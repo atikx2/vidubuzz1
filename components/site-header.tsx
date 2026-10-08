@@ -104,7 +104,7 @@ function SearchBox({
             {results.length ? (
               results.map(({ video, index }) => (
                 <a
-                  href={`/#video-${index}`}
+                  href={`/video/${video.id}/`}
                   className="search-result"
                   key={`${video.title}-${index}`}
                   onClick={onClose}
