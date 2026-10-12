@@ -10,5 +10,8 @@
       "database_id": "local-admin",
       "migrations_dir": "migrations"
     }
+  ],
+  "r2_buckets": [
+    { "binding": "ASSETS_BUCKET", "bucket_name": "vidubuzz-assets-local" }
   ]
 }

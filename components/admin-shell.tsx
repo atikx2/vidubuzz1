@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
-  ArrowUpRight, ChartNoAxesCombined, Clapperboard, LayoutDashboard, LogOut,
+  ArrowUpRight, ChartNoAxesCombined, Clapperboard, Images, LayoutDashboard, LogOut,
   Radio, ShieldCheck, Tags, UserRound, UsersRound,
 } from "lucide-react";
 import { adminPost } from "@/lib/admin-api";
@@ -13,6 +13,7 @@ const navigation = [
   { label: "Dashboard", href: "/admin/", icon: LayoutDashboard, section: "dashboard" },
   { label: "Analytics", href: "/admin/#analytics", icon: ChartNoAxesCombined, section: "analytics" },
   { label: "Videos", href: "/admin/#videos", icon: Clapperboard, section: "videos" },
+  { label: "Media", href: "/admin/media/", icon: Images, section: "media" },
   { label: "Models", href: "/admin/#models", icon: UsersRound, section: "models" },
   { label: "Channels", href: "/admin/#channels", icon: Radio, section: "channels" },
   { label: "Categories", href: "/admin/#categories", icon: Tags, section: "categories" },
@@ -62,6 +63,7 @@ export function AdminShell({ children, title, subtitle, email }: { children: Rea
 
   function isActive(section: string) {
     if (section === "profile") return pathname === "/admin/profile";
+    if (section === "media") return pathname === "/admin/media";
     return pathname === "/admin" && (section === "dashboard" ? !hash : hash === `#${section}`);
   }
 
@@ -69,7 +71,7 @@ export function AdminShell({ children, title, subtitle, email }: { children: Rea
     <nav ref={mobile ? mobileNavRef : undefined} className={mobile ? "admin-nav admin-nav-mobile" : "admin-nav admin-nav-desktop"} aria-label={mobile ? "Admin menu, swipe to see more" : "Admin menu"}>
       {navigation.map(({ label, href, icon: Icon, section }) => (
         <Link className={`admin-nav-link ${isActive(section) ? "admin-nav-link-active" : ""}`} href={href} key={section}
-          aria-current={isActive(section) ? (section === "profile" || section === "dashboard" ? "page" : "location") : undefined}
+          aria-current={isActive(section) ? (section === "profile" || section === "media" || section === "dashboard" ? "page" : "location") : undefined}
           onClick={() => setHash(href.includes("#") ? `#${section}` : "")}>
           <Icon size={18} strokeWidth={1.8} aria-hidden="true" /><span>{label}</span>
         </Link>

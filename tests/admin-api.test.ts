@@ -1,9 +1,8 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import { readFileSync } from "node:fs";
-import { DatabaseSync } from "node:sqlite";
 import test from "node:test";
-import { privateKeyHash, type AdminEnv, type D1Database, type D1PreparedStatement, type D1Result } from "../functions/_shared/admin-auth";
+import { LocalD1 } from "./helpers/local-d1";
+import { privateKeyHash, type AdminEnv } from "../functions/_shared/admin-auth";
 import { onRequestPost as login } from "../functions/api/admin/login";
 import { onRequestPost as logout } from "../functions/api/admin/logout";
 import { onRequestPost as password } from "../functions/api/admin/password";
@@ -17,29 +16,6 @@ const initialPassword = "FixtureInitial@872x";
 const nextPassword = "FixtureReplacement@19z";
 const email = "atikhasan315377@gmail.com";
 const origin = "https://vidubuzz.test";
-
-class Prepared implements D1PreparedStatement {
-  constructor(private db: DatabaseSync, private sql: string, private values: Array<string | number | null> = []) {}
-  bind(...values: Array<string | number | null>) { return new Prepared(this.db, this.sql, values); }
-  async first<T>() { return (this.db.prepare(this.sql).get(...this.values) ?? null) as T | null; }
-  async all<T>() { return { success: true, results: this.db.prepare(this.sql).all(...this.values) as T[] }; }
-  async run() { const result = this.db.prepare(this.sql).run(...this.values); return { success: true, meta: { changes: Number(result.changes) } }; }
-}
-
-class LocalD1 implements D1Database {
-  sqlite = new DatabaseSync(":memory:");
-  constructor() { this.sqlite.exec(readFileSync(new URL("../migrations/0001_admin_analytics.sql", import.meta.url), "utf8")); }
-  prepare(sql: string) { return new Prepared(this.sqlite, sql); }
-  async batch<T>(statements: D1PreparedStatement[]) {
-    this.sqlite.exec("BEGIN");
-    try {
-      const results: D1Result<T>[] = [];
-      for (const statement of statements) results.push(await statement.run() as D1Result<T>);
-      this.sqlite.exec("COMMIT");
-      return results;
-    } catch (error) { this.sqlite.exec("ROLLBACK"); throw error; }
-  }
-}
 
 function environment(): AdminEnv & { DB: LocalD1 } {
   return {

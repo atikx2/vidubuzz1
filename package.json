@@ -8,11 +8,12 @@
     "start": "next start --hostname 0.0.0.0",
     "lint": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts",
-    "pages:dev": "wrangler pages dev out --d1 DB=local-admin --compatibility-date 2026-10-08 --ip 0.0.0.0 --port 8788",
-    "db:local": "wrangler d1 execute DB --config wrangler.local.jsonc --local --file migrations/0001_admin_analytics.sql"
+    "pages:dev": "wrangler pages dev out --d1 DB=local-admin --r2 ASSETS_BUCKET=vidubuzz-assets-local --compatibility-date 2026-10-08 --ip 0.0.0.0 --port 8788",
+    "db:local": "wrangler d1 execute DB --config wrangler.local.jsonc --local --file migrations/0001_admin_analytics.sql && wrangler d1 execute DB --config wrangler.local.jsonc --local --file migrations/0002_r2_media.sql"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
+    "aws4fetch": "^1.0.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.12",

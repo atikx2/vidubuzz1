@@ -1,0 +1,9 @@
+[
+  {
+    "AllowedOrigins": ["https://vidubuzz.top"],
+    "AllowedMethods": ["PUT", "GET", "HEAD"],
+    "AllowedHeaders": ["Content-Type", "Cache-Control", "If-None-Match", "x-amz-meta-asset-id", "x-amz-meta-purpose"],
+    "ExposeHeaders": ["ETag"],
+    "MaxAgeSeconds": 3600
+  }
+]

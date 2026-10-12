@@ -5,6 +5,7 @@
 - `/admin/login/` — admin sign-in (default email: `atikhasan315377@gmail.com`).
 - `/admin/` — dashboard, live visitor count, tracked video/page views, seven-day chart, top watched videos, and catalog summary.
 - `/admin/profile/` — account details and password change.
+- `/admin/media/` — admin-only direct-to-R2 image/short-preview uploads and verified media library. Follow [R2 setup](r2-setup.md); R2 activation alone is not enough to enable uploads.
 
 The public site **still uses Next.js static export**, `trailingSlash: true`, and `out/`. Pages Functions handle **only `/api/*`**, not Next.js SSR. Admin HTML/JS is a public shell; all private data and account operations require server-side authentication. Admin routes have noindex metadata and no-store headers.
 
