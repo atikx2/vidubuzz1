@@ -1,5 +1,6 @@
 import rawSnapshot from "../.generated/models.json";
-import { channelDirectory, performers as demoPerformers, videos, type PerformerProfile } from "./demo-content";
+import { performers as demoPerformers, videos, type PerformerProfile } from "./demo-content";
+import { channelDirectory, informationPages } from "./public-platform";
 import { modelDescription, type ModelSnapshot } from "./models";
 
 // Generated only at build time. This JSON contains published public fields, never drafts or credentials.
@@ -17,5 +18,5 @@ export const performers: PerformerProfile[] = modelSnapshot.source === "d1" ? mo
     tone: ["portrait-one", "portrait-two", "portrait-three"][index % 3] };
 }) : demoPerformers.map((model) => ({ ...model, source: "demo" as const, countryCode: null, age: null }));
 
-const slugs = [...channelDirectory.map((channel) => channel.slug), ...performers.map((model) => model.slug)];
+const slugs = [...channelDirectory.map((channel) => channel.slug), ...performers.map((model) => model.slug), ...informationPages.map((page) => page.slug)];
 if (new Set(slugs).size !== slugs.length) throw new Error("Public model/channel slugs conflict. Resolve the model slug before publishing.");

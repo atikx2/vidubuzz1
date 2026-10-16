@@ -4,12 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/ensure-model-snapshot.mjs && next dev --hostname 0.0.0.0",
-    "build": "tsx scripts/sync-model-content.ts && next build",
+    "build": "tsx scripts/sync-model-content.ts && next build && node scripts/finalize-static.mjs",
     "start": "next start --hostname 0.0.0.0",
     "lint": "node scripts/ensure-model-snapshot.mjs && tsc --noEmit",
     "test": "node scripts/ensure-model-snapshot.mjs && tsx --test tests/*.test.ts",
     "pages:dev": "wrangler pages dev out --d1 DB=local-admin --r2 ASSETS_BUCKET=vidubuzz-assets-local --compatibility-date 2026-10-08 --ip 0.0.0.0 --port 8788",
-    "db:local": "wrangler d1 execute DB --config wrangler.local.jsonc --local --file migrations/0001_admin_analytics.sql && wrangler d1 execute DB --config wrangler.local.jsonc --local --file migrations/0002_r2_media.sql && wrangler d1 execute DB --config wrangler.local.jsonc --local --file migrations/0003_models.sql",
+    "db:local": "wrangler d1 execute DB --config wrangler.local.jsonc --local --file migrations/0001_admin_analytics.sql && wrangler d1 execute DB --config wrangler.local.jsonc --local --file migrations/0002_r2_media.sql && wrangler d1 execute DB --config wrangler.local.jsonc --local --file migrations/0003_models.sql && wrangler d1 execute DB --config wrangler.local.jsonc --local --file migrations/0004_workspace.sql",
     "models:sync": "tsx scripts/sync-model-content.ts"
   },
   "dependencies": {

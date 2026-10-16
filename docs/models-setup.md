@@ -1,113 +1,49 @@
-# Models: D1 editing + static public pages
+# Models: easy drafts, D1 editing and static public pages
 
-This chunk adds `/admin/models/`. It does **not** add visitor login, Worker SSR, video uploads, a video editor or a channel editor. Existing admin credentials and R2 upload settings stay unchanged.
+`/admin/models/` is part of the admin workspace. **Video management remains later.** Channels, Categories, Settings, information Pages and API & Connections are now available too. Start with the [workspace setup guide](workspace-setup.md) for migration `0004`, publishing, SEO and public pages.
 
-## How it works
+Existing login credentials and R2 upload settings stay unchanged. No visitor login, Worker SSR, provider import or main-video upload is added.
 
-- Admin metadata is saved in the existing D1 `DB` binding.
-- Photos use verified images from the R2 media library, or the same direct-to-R2 upload flow used by `/admin/media/`.
-- A new profile starts as **Draft**. Name, a stable URL slug, a plain-text description and adult/permission confirmation are required. Country and age are optional; missing values remain absent from public profiles. A supplied age must be an integer from 18 to 120.
-- **Public · next build** means eligible for a future build, **not already live**. A verified R2 image is required for that status.
-- **Archived** retains the record but excludes it from the next build. There is no destructive delete or slug-renaming UI.
-- `npm run build` reads published/adult-confirmed metadata through the private D1 REST API before Next.js runs. It generates ignored `.generated/models.json`, a compact card index without biographies, and API-only snapshot/slug metadata, then exports the public directory, model detail pages, related rows, metadata and sitemap to `out/`.
-- Public model pages do not call a model API or D1 per visitor. Existing anonymous analytics are unchanged. Public R2 requests still count toward R2 operations/storage; this is not a promise of unlimited free use or a measured <=10 ms CPU guarantee for admin Functions.
+## One-time model migration
 
-## 1. Apply the model migration
+If Models already work, skip this step. Otherwise, after the admin and R2 migrations, run the entire contents of `migrations/0003_models.sql` in **Cloudflare → D1 → the existing database bound as `DB` → Console**. Use the actual existing database, not a guessed example name.
 
-In Cloudflare **Workers & Pages → D1 → your existing admin database → Console**, run the contents of:
+It adds Models, shared URL reservations and indexes, preserving passwords/media. It imports the six existing **fictional demo profiles**, labels them, and does not invent an age or country. Demo detail pages remain noindex and absent from model sitemap entries. Editing a demo converts it to a managed record; add a verified R2 photo and explicitly confirm adult/permission status before selecting Public.
 
-```text
-migrations/0003_models.sql
-```
+Then apply `0004_workspace.sql` using **Admin → API → Copy complete SQL** to enable the rest of the workspace and whole-site publishing. Models can still be edited with `0003` alone; the Publish site action requires the current workspace schema too.
 
-Apply it to the same database already bound as `DB` in this Pages environment. Migration `0002_r2_media.sql` must already be present. This adds `models`, `content_slugs` and indexes; it does not reset passwords or media.
+## Daily flow: start small
 
-The migration imports the six existing **fictional demo profiles** so the admin list is not disconnected from the current prototype. They are visibly labelled, carry no invented country or age, and retain their legacy demo photos until converted. Demo detail pages are `noindex` and omitted from the model sitemap entries. Saving an edited demo converts it to a managed record; choose a real R2 photo and explicitly confirm adult/permission status before making it public.
+1. Open **Models → Create Model**.
+2. Enter the **name** and check the **adult/permission confirmation** after actually verifying both. These are the only required draft fields.
+3. Tap **Save draft**. The URL is generated automatically, including a safe ASCII fallback for non-Latin-only names. No manual slug field is required. Saved URLs are immutable to avoid broken links.
+4. When ready, add a verified photo and a short original introduction. Select **Public · next build**, then save.
+5. Batch other edits, then **Publish site** once. Check **Pages → Deployments** and open the newly successful deployment URL. Saving or queuing a build does not mean the new profile is live.
 
-Refresh `/admin/models/`. Create, edit, search, filter and paginate are usable after this step, even before publishing is configured.
+**More details & SEO** stays collapsed by default. It contains optional country, verified adult age (integer 18–120), SEO title, meta description and image alt text. Unknown facts stay blank and absent publicly. Default SEO is generated from the saved name/introduction/site brand; search engines can rewrite it and no ranking is guaranteed.
 
-## 2. Configure build-time D1 access
+Search, country/status filters, sorting and 12-row admin pagination are available in the Models list. Archive keeps the record but excludes it from the next successful public build. There is no destructive delete or slug-renaming UI.
 
-Go to the Pages project **Settings → Variables and Secrets**. Use the environment you are actually deploying:
+### Photos
 
-- This session's fixed branch is `arena/a87a8bb1-vidubuzz1`, normally a **Preview** environment.
-- Production has separate settings. Do not assume Preview secrets/bindings automatically exist in Production, or vice versa.
+Choose an existing **verified image** from the R2 media library or use **Upload photo**, which uses the same direct signed upload and verification as Media. Preview/main videos cannot be profile photos. Only owned images that are ready and have verified dimensions/type can be selected. If verification fails after a successful PUT, retry verification rather than creating a duplicate upload. See [R2 setup](r2-setup.md) for limits and CORS.
 
-Add:
+Drafts do not require an image. Public managed profiles require a photo and introduction, in addition to adult confirmation. Do not publish an unverified age, identity or content permission.
 
-| Setting | Type | Value |
-| --- | --- | --- |
-| `D1_DATABASE_ID` | Text | The UUID of the **same** D1 database bound as `DB`, copied from its database overview. Not its name or binding name. |
-| `D1_READ_TOKEN` | Encrypted secret | A private Cloudflare API token with **Account → D1 → Read**, scoped to the account containing this database. |
-| `NEXT_PUBLIC_SITE_URL` | Text, optional | Your final public HTTPS site origin, without a path, for example `https://vidubuzz.top`. This value is intentionally public, unlike the token. |
+## Publishing and public pages
 
-Existing text variables `R2_ACCOUNT_ID` and `R2_PUBLIC_BASE_URL` must also be present in the build environment. The account ID must belong to the D1 database as well as the existing R2 setup. The public image origin is typically `https://assets.vidubuzz.top`.
+See [private build-read setup and deploy-hook instructions](workspace-setup.md#enable-static-publishing-private-cloudflare-setup). This session uses branch **`arena/a87a8bb1-vidubuzz1`** and its Preview environment. Production is separate. Keep existing passwords, pepper/session secrets and R2 keys unchanged; never share them or the D1 token/hook URL in chat.
 
-To create the read token: Cloudflare profile → **API Tokens → Create Token → Custom token**. Choose only **Account / D1 / Read** and the correct account. Do not give it R2 upload or account-wide edit permissions. The D1 query endpoint accepts the D1 Read permission; the build sends only SELECT queries. Cloudflare's permission is account-scoped, so treat the token as sensitive even though this code queries only the specified database.
+- Build: `npm run build`; output: `out`. The coordinated export logs **`Static site snapshot:`**, not the old model-only message.
+- The build reads eligible public rows through private D1 SELECT access before Next runs. It validates URL ownership/photos and detects concurrent revisions; partial setup/errors fail closed. Only completely absent D1 build credentials enable demo fallback. An empty managed selection stays empty.
+- Public model routes/directories are static HTML; no per-visitor Models API or D1 read is used. Public client card indexes omit biographies and SEO overrides. Drafts, archived rows, private ownership fields and secrets are not exported.
+- Profiles have canonical URLs, branding, SEO metadata, image metadata, escaped `ProfilePage`/`Person` and breadcrumb JSON-LD. No birthday, nationality, residence, age or country is inferred.
+- The public directory has real 24-item pagination. Eligible non-demo profiles appear in the sitemap and respect the site's indexing controls. Admin/API noindex is a crawl hint, not access control.
+- New managed profiles show **zero linked videos**, even when their names match fictional demo actors. Explicit ID-based video associations belong in the later Video editor.
+- Archiving affects the next deployment, not immutable old deployment URLs, search caches or shared R2 files. Takedown/removal of old copies/assets needs separate account-side action.
 
-Do not paste tokens, S3 keys, passwords or hook URLs into chat, screenshots, Git or a `NEXT_PUBLIC_*` variable. Keep the existing admin pepper/session secrets unchanged.
+The static architecture avoids a public catalog Function per page view, but it does not promise unlimited free R2 usage or establish production Function CPU time. The current bounded exporter is not a million-record publishing system.
 
-The build command remains **`npm run build`** and the output directory remains **`out`**. Redeploy after adding settings. Confirm the build log says:
+## Local verification
 
-```text
-Static model snapshot: <number> published profiles.
-```
-
-If both D1 build settings are absent, the existing demo catalog remains in use. If only part of the setup is present, D1 access fails, a public image is invalid, or the catalog changes during snapshot generation, the build fails instead of silently publishing demos/partial data. An empty configured public selection is genuinely empty, not a demo fallback.
-
-## 3. Optional: enable the admin Publish site button
-
-Without a deploy hook you can still publish by retrying a Pages deployment or triggering a Git build, with the settings from step 2 present.
-
-For the button:
-
-1. Pages project → **Settings → Builds / Build & deployments → Deploy hooks → Add deploy hook**.
-2. Name it `Model catalog` (any useful name is fine).
-3. Set **Branch to build** to **`arena/a87a8bb1-vidubuzz1`** for this session. A hook for `main` would deploy different code/environment; the application cannot inspect the hook's branch, so check this carefully.
-4. Save its private URL as the encrypted **`PAGES_DEPLOY_HOOK`** variable in this same Pages environment.
-5. Redeploy so the Function can see the new secret. The Models page enables **Publish site** when the migration and required publishing settings are present.
-
-The server accepts only HTTPS `api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/...` URLs, follows no redirects, requires an authenticated same-origin POST, and rate limits publishing to three requests per 15 minutes. The URL is never returned to the browser. Hook configuration readiness is not proof of valid credentials or a successful deployment: the Cloudflare build log is the source of truth.
-
-## 4. Day-to-day flow
-
-1. Open **Admin → Models → Create Model**.
-2. Enter the name; review the automatically generated slug before the first save. Non-Latin names may need a manually entered Latin URL slug. Saved slugs cannot be changed here, to avoid broken links.
-3. Add country and/or verified adult age only if known. Otherwise leave them empty.
-4. Write a unique, useful description. Optional SEO title, meta description and image alt text have safe defaults and a search-result preview. Search engines can rewrite snippets; no ranking is guaranteed.
-5. Choose an existing verified R2 image, or **Upload photo**. Upload byte limits, CORS and verification are the same as the Media library. Only images are offered; preview/main videos cannot be profile photos. If verification fails after a PUT, retry verification rather than uploading a duplicate file.
-6. Confirm the profile is adult-only and you have permission to use its content.
-7. Save Draft while working. Choose **Public · next build** when ready and save.
-8. Batch other edits, then press **Publish site** once. Avoid editing the catalog during the snapshot step; concurrent changes cause a safe build failure and require a retry.
-9. Check **Pages → Deployments** for success, then open that deployment's real URL. Hash deployment URLs are immutable: an old `https://<hash>.vidubuzz1.pages.dev` does not change when a new deployment finishes. Use the latest deployment or a verified current branch alias; do not guess an alias.
-
-Archiving removes the model from the **new** static deployment after a successful build. It does not erase old immutable deployments, cached images or search-engine copies. R2 photo files are immutable shared assets and are not automatically deleted; do not delete a referenced file manually. Privacy/takedown removal from deployment history and assets requires separate account-side action.
-
-New managed profiles correctly show zero linked videos for now: the current video catalog is fictional demo data, and this chunk does not invent real video associations from matching names. Explicit model/video ID relationships belong in the later video editor.
-
-## SEO/export details
-
-- Stable lowercase slugs are reserved atomically against model, channel and system paths. Names can change without moving the URL.
-- Name/description text is escaped by React. JSON-LD escapes `<` to prevent script breakout. No custom HTML editor is allowed.
-- Public real profiles receive canonical URLs, SEO title/description, Open Graph/Twitter image metadata, `ProfilePage`/`Person` and breadcrumb JSON-LD.
-- Optional age/country are displayed only when supplied. No birthday, nationality, residence, country or age is inferred for structured data.
-- `/sitemap.xml` is statically exported and lists published non-demo models with updated timestamps alongside existing public routes. `/robots.txt` excludes admin/API crawling; admin routes also keep their existing noindex headers. These are crawl hints, not access control.
-- The public model directory uses real 24-item pagination instead of fake page numbers. Sitemap URLs expose every exported real profile for crawling, including those beyond page one.
-- This is a bounded, small-catalog snapshot implementation (fewer than 10,000 published records), not million-record publishing. Larger catalogs need sharded snapshots/sitemaps, real video relations and a Pages file-count/build-limit plan before increasing this cap.
-
-## Local development and verification
-
-```bash
-npm ci
-npm run lint
-npm test
-npm run db:local
-npm run build
-npm run pages:dev
-```
-
-`npm run dev` runs the static frontend on `0.0.0.0`; use the Pages emulator for authenticated APIs. Copy `.dev.vars.example` to ignored `.dev.vars` for local Function settings; never reuse production credentials for QA.
-
-For a real D1 snapshot in local Next development, supply the build variables privately in your shell / a secret manager and run `npm run models:sync` before starting Next. The build script does not automatically source `.dev.vars` (that file is for the Pages emulator). Do not commit `.generated/`, local SQLite, uploaded fixtures or `out/`.
-
-Tests cover authentication/origin checks, migration readiness, optional fields/adult validation, R2 ownership/type/readiness, atomic slug reservations, stable URLs/revisions, list filtering/pagination, save/publish rate limits, deploy-hook safety and D1 snapshot filtering/pagination/fail-closed behavior. Local tests do not establish production CPU usage or live deploy-hook credentials.
+Follow the [workspace local verification](workspace-setup.md#local-verification) instructions. Use synthetic local credentials, not real production secrets. Unit/API/build tests and browser QA are evidence of tested code paths, not a live Cloudflare credential, deployment-hook or CPU guarantee.

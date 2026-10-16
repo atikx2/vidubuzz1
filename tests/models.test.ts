@@ -72,6 +72,7 @@ test("configuration safely reports migration/publishing setup and never returns 
   assert.equal((await library({ env, request: request("/api/admin/models/", "GET", undefined, cookie) })).status, 503);
   // Sessions are database-specific, so use the same authenticated database after applying the migration.
   env.DB.sqlite.exec((await import("node:fs")).readFileSync(new URL("../migrations/0003_models.sql", import.meta.url), "utf8"));
+  env.DB.sqlite.exec((await import("node:fs")).readFileSync(new URL("../migrations/0004_workspace.sql", import.meta.url), "utf8"));
   response = await config({ env, request: request("/api/admin/models/config", "GET", undefined, cookie) });
   data = await response.json() as ModelConfig; assert.equal(data.migrationApplied, true); assert.equal(data.publishingConfigured, true);
 });
@@ -99,7 +100,7 @@ test("invalid/underage, unconfirmed, HTML, excessive and malformed model fields 
   const { env, cookie } = await setup(); t.after(() => env.DB.sqlite.close());
   const cases = [{ age: 17 }, { age: 121 }, { age: 18.5 }, { age: "21" }, { adultConfirmed: false }, { adultConfirmed: "true" },
     { countryCode: "XX" }, { countryCode: "us" }, { slug: "UPPERCASE" }, { slug: "bad--slug" }, { slug: "../admin" }, { name: " " },
-    { name: "<script>alert(1)</script>" }, { description: "<b>HTML</b>" }, { description: "" }, { name: "a".repeat(101) },
+    { name: "<script>alert(1)</script>" }, { description: "<b>HTML</b>" }, { description: "", status: "published" }, { name: "a".repeat(101) },
     { description: "a".repeat(8001) }, { status: "live" }, { seoTitle: "a".repeat(101) }, { imageAlt: "a".repeat(161) }, { photoAssetId: "not-uuid" }];
   for (const extra of cases) { const response = await save({ env, request: request("/api/admin/models/save", "POST", input(extra), cookie) }); assert.equal(response.status, 400, await response.clone().text()); }
   assert.equal((await getList(env, cookie)).total, 6);

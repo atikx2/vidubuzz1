@@ -1,0 +1,37 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, FilePenLine, Plus, Radio, Search, Tags } from "lucide-react";
+import { AdminShell } from "@/components/admin-shell";
+import { AdminCatalogEditor } from "@/components/admin-catalog-editor";
+import { useAdminSession } from "@/components/use-admin-session";
+import { AdminPublishing, WorkspaceAlert, WorkspaceLoading, WorkspaceRefresh, WorkspaceSetup, useAdminResource } from "@/components/admin-workspace-shared";
+import { type CatalogKind, type CatalogList, type ManagedCatalogEntry, type PlatformConfig } from "@/lib/platform";
+
+export function AdminCatalog({ kind }: { kind: CatalogKind }) {
+  const noun = kind === "channel" ? "Channel" : "Category", plural = kind === "channel" ? "Channels" : "Categories", Icon = kind === "channel" ? Radio : Tags;
+  const { session, loading: sessionLoading, error: sessionError } = useAdminSession();
+  const [search, setSearch] = useState(""), [query, setQuery] = useState(""), [status, setStatus] = useState(""), [page, setPage] = useState(1), [refresh, setRefresh] = useState(0);
+  const [sort, setSort] = useState("recent"), [editor, setEditor] = useState<ManagedCatalogEntry | null | undefined>(undefined), [notice, setNotice] = useState("");
+  const config = useAdminResource<PlatformConfig>("/api/admin/connections", Boolean(session), refresh);
+  useEffect(() => { const timer = window.setTimeout(() => { setQuery(search.trim()); setPage(1); }, 300); return () => window.clearTimeout(timer); }, [search]);
+  const params = new URLSearchParams({ kind, page: String(page), sort, ...(query ? { q: query } : {}), ...(status ? { status } : {}) });
+  const list = useAdminResource<CatalogList>(`/api/admin/catalog/?${params}`, Boolean(session && config.data?.migrationApplied), refresh);
+  const data = list.data;
+  useEffect(() => { if (data && page > data.totalPages && !list.loading) setPage(data.totalPages); }, [data, page, list.loading]);
+  const ready = Boolean(config.data?.migrationApplied), loading = sessionLoading || config.loading || list.loading;
+  return <AdminShell title={plural} subtitle={`A simple workspace for your ${plural.toLowerCase()}. Create a draft now, add the details later.`} email={session?.email}>
+    {(sessionError || config.error || list.error) && <WorkspaceAlert>{sessionError || config.error || list.error}</WorkspaceAlert>}
+    {notice && <WorkspaceAlert success>{notice}</WorkspaceAlert>}
+    <section className="workspace-hero"><span className="workspace-hero-icon"><Icon size={27} /></span><div><p className="workspace-eyebrow">YOUR CONTENT, ORGANIZED</p><h2>{plural}, without the complexity</h2><p>{kind === "channel" ? "Give every studio or channel its own home." : "Build an approved taxonomy, one topic at a time. No scraping or automatic category imports."}</p></div><button className="model-button model-button-primary" type="button" disabled={!session || !ready} onClick={() => setEditor(null)}><Plus size={17} />Create {kind}</button></section>
+    {!config.data && loading ? <WorkspaceLoading /> : config.data && !ready ? <WorkspaceSetup /> : ready && <>
+      <div className="workspace-stat-grid">{[{ label: "Total", value: data?.stats.total }, { label: "Public · next build", value: data?.stats.published }, { label: "Drafts", value: data?.stats.drafts }, { label: "Archived", value: data?.stats.archived }].map((stat) => <div className="workspace-stat" key={stat.label}><span>{stat.label}</span><strong>{stat.value ?? "—"}</strong></div>)}</div>
+      <section className="workspace-panel" aria-labelledby="catalog-list-title"><div className="workspace-panel-heading"><div><p className="workspace-eyebrow">CATALOG</p><h2 id="catalog-list-title">All {plural.toLowerCase()}</h2></div><WorkspaceRefresh busy={loading} onClick={() => setRefresh((n) => n + 1)} /></div>
+        <div className="workspace-toolbar"><label className="workspace-search"><Search size={17} /><input aria-label={`Search ${plural.toLowerCase()}`} maxLength={100} placeholder={`Search ${plural.toLowerCase()}…`} value={search} onChange={(event) => setSearch(event.target.value)} /></label><select aria-label={`${noun} status filter`} value={status} onChange={(event) => { setStatus(event.target.value); setPage(1); }}><option value="">All statuses</option><option value="draft">Drafts</option><option value="published">Public</option><option value="archived">Archived</option></select><select aria-label={`Sort ${plural.toLowerCase()}`} value={sort} onChange={(event) => { setSort(event.target.value); setPage(1); }}><option value="recent">Recently updated</option><option value="name">Name A–Z</option></select></div>
+        {loading && !data ? <WorkspaceLoading /> : data?.entries.length ? <div className={`workspace-catalog-grid ${list.loading ? "workspace-is-loading" : ""}`} aria-busy={list.loading}>{data.entries.map((entry) => <article className="workspace-catalog-card" key={entry.id}><button className="workspace-catalog-image" type="button" onClick={() => setEditor(entry)} aria-label={`Edit ${entry.name}`}>{entry.imageUrl ? <img src={entry.imageUrl} alt={entry.imageAlt || `${entry.name} thumbnail`} loading="lazy" decoding="async" /> : <Icon size={35} strokeWidth={1.2} />}<span className={`workspace-status workspace-status-${entry.status}`}>{entry.status === "published" ? "Public · next build" : entry.status === "draft" ? "Draft" : "Archived"}</span>{entry.source === "demo" && <small className="workspace-demo">FICTIONAL DEMO</small>}</button><div className="workspace-catalog-copy"><h3>{entry.name}</h3><span className="workspace-card-url">/{kind === "category" ? "categories/" : ""}{entry.slug}/</span><p>{entry.description || "No introduction yet. Add it when you are ready to publish."}</p><div><small>{new Date(entry.updatedAt).toLocaleDateString("en", { day: "numeric", month: "short" })}</small><button className="model-button model-button-secondary" type="button" onClick={() => setEditor(entry)}><FilePenLine size={14} />Edit {kind}</button></div></div></article>)}</div> : <div className="workspace-empty"><Icon size={30} /><h3>{query || status ? "No matches" : `Your first ${kind} starts here`}</h3><p>{query || status ? "Try another search or status filter." : `Only a name is required to save a ${kind} draft.`}</p>{!query && !status && <button type="button" className="model-button model-button-primary" onClick={() => setEditor(null)}><Plus size={15} />Create {kind}</button>}</div>}
+        {data && <div className="workspace-pagination"><span>{data.total} {plural.toLowerCase()} · 12 per page</span><div><button type="button" disabled={loading || page <= 1} aria-label="Previous catalog page" onClick={() => setPage((n) => n - 1)}><ChevronLeft size={17} /></button><span>{page} / {data.totalPages}</span><button type="button" disabled={loading || page >= data.totalPages} aria-label="Next catalog page" onClick={() => setPage((n) => n + 1)}><ChevronRight size={17} /></button></div></div>}
+      </section></>}
+    <AdminPublishing config={config.data} />
+    {editor !== undefined && <AdminCatalogEditor key={editor?.id ?? "new"} kind={kind} entry={editor} siteUrl={config.data?.publicSiteUrl ?? "https://vidubuzz.top"} onClose={() => setEditor(undefined)} onSaved={() => { setEditor(undefined); setNotice(`${noun} saved in D1. Public changes appear after the next successful build.`); setRefresh((n) => n + 1); }} />}
+  </AdminShell>;
+}

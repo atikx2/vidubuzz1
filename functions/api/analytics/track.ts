@@ -1,5 +1,6 @@
 import { categoryDirectory, channelDirectory, performers, videos } from "../../../lib/demo-content";
 import modelRoutes from "../../../.generated/model-meta.json";
+import platformRoutes from "../../../.generated/platform-meta.json";
 import {
   ApiError, apiErrorResponse, jsonResponse, readJsonObject, sameOriginRequest, sha256,
   type AdminEnv, type PagesContext,
@@ -10,8 +11,9 @@ const uuidPattern = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{1
 const publicPaths = new Set([
   "/", "/categories", "/channels", "/pornstars",
   ...videos.map((video) => `/video/${video.id}`),
-  ...categoryDirectory.map((category) => `/categories/${category.slug}`),
-  ...channelDirectory.map((channel) => `/${channel.slug}`),
+  ...(platformRoutes.source === "d1" ? platformRoutes.categories : categoryDirectory.map((category) => category.slug)).map((slug) => `/categories/${slug}`),
+  ...(platformRoutes.source === "d1" ? platformRoutes.channels : channelDirectory.map((channel) => channel.slug)).map((slug) => `/${slug}`),
+  ...platformRoutes.pages.map((slug) => `/${slug}`),
   ...(modelRoutes.source === "d1" ? modelRoutes.slugs : performers.map((performer) => performer.slug)).map((slug) => `/${slug}`),
 ]);
 

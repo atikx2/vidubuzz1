@@ -4,8 +4,13 @@ import { notFound } from "next/navigation";
 import { Hash, PlayCircle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { VideoListing } from "@/components/video-listing";
-import { categoryDirectory, videos } from "@/lib/demo-content";
+import { videos } from "@/lib/demo-content";
+import { categoryDirectory, publicRobots, siteOrigin, siteSettings } from "@/lib/public-platform";
+import { catalogTitle } from "@/lib/platform";
+import { safeJsonLd } from "@/lib/models";
 import { siteContent } from "@/lib/site-content";
+
+export const dynamicParams = false;
 
 type CategoryPageProps = { params: Promise<{ slug: string }> };
 
@@ -18,17 +23,17 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const category = categoryDirectory.find((item) => item.slug === slug);
   if (!category) return {};
 
-  const title = `${category.name} Adult Videos | Vidubuzz`;
+  const title = catalogTitle(category.name, category.seoTitle, siteSettings.brandName);
   return {
     title,
     description: category.seoDescription,
     alternates: { canonical: `/categories/${category.slug}/` },
-    robots: { index: true, follow: true },
+    robots: publicRobots("categories", category.source === "demo"),
     openGraph: {
       title,
       description: category.seoDescription,
       type: "website",
-      siteName: "Vidubuzz",
+      siteName: siteSettings.brandName,
     },
     twitter: {
       card: "summary",
@@ -43,14 +48,15 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const category = categoryDirectory.find((item) => item.slug === slug);
   if (!category) notFound();
 
-  const categoryVideos = videos.filter((video) => video.categories.includes(category.slug));
+  const categoryVideos = category.source === "demo" ? videos.filter((video) => video.categories.includes(category.slug)) : [];
   const relatedCategories = categoryDirectory.filter((item) => item.slug !== category.slug).slice(0, 6);
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: `${category.name} adult videos`,
     description: category.seoDescription,
-    isPartOf: { "@type": "WebSite", name: "Vidubuzz" },
+    url: `${siteOrigin}/categories/${category.slug}/`,
+    isPartOf: { "@type": "WebSite", name: siteSettings.brandName, url: siteOrigin },
   };
 
   return (
@@ -61,7 +67,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <div className="category-profile-top">
             <span className="category-profile-icon"><Hash size={24} aria-hidden="true" /></span>
             <div>
-              <p className="channel-profile-eyebrow">Video category</p>
+              <p className="channel-profile-eyebrow">{category.source === "demo" ? "Fictional demo category" : "Video category"}</p>
               <h1 id="category-profile-title">{category.name}</h1>
               <span className="category-profile-count"><PlayCircle size={15} aria-hidden="true" />{category.videos}</span>
             </div>
@@ -75,7 +81,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           description={`${siteContent.categoryDetailVideosDescription} ${category.name}.`}
           headingId="category-videos-heading"
           headingLevel="h2"
-          totalPages={Math.max(1, Math.ceil(category.videoCount / 24))}
+
         />
 
         <section className="channel-related-section category-related-section" aria-labelledby="related-categories-heading">
@@ -102,11 +108,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         </section>
 
         <section className="seo-copy category-detail-seo" aria-labelledby="category-detail-seo-heading">
-          <h2 id="category-detail-seo-heading">{category.name} Adult Videos on Vidubuzz</h2>
+          <h2 id="category-detail-seo-heading">{category.name} Videos on {siteSettings.brandName}</h2>
           <p>{category.seoDescription}</p>
         </section>
       </main>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(structuredData) }} />
     </>
   );
 }

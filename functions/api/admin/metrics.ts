@@ -15,7 +15,7 @@ export async function onRequestGet({ request, env }: PagesContext<AdminEnv>) {
     const weekStart = new Date(now);
     weekStart.setUTCDate(now.getUTCDate() - 6);
     weekStart.setUTCHours(0, 0, 0, 0);
-    const [active, totals, days, topVideos, modelCount] = await Promise.all([
+    const [active, totals, days, topVideos, modelCount, catalogCounts] = await Promise.all([
       env.DB!.prepare("SELECT COUNT(*) AS count FROM analytics_visitors WHERE last_seen >= ?")
         .bind(new Date(now.getTime() - 5 * 60_000).toISOString()).first<CountRow>(),
       env.DB!.prepare(`SELECT COALESCE(SUM(event_type = 'video_view'), 0) AS video_views,
@@ -28,6 +28,7 @@ export async function onRequestGet({ request, env }: PagesContext<AdminEnv>) {
       env.DB!.prepare(`SELECT video_id, COUNT(*) AS count FROM analytics_events WHERE event_type = 'video_view'
         GROUP BY video_id ORDER BY count DESC, video_id ASC LIMIT 5`).all<TopRow>(),
       (async () => { try { return await env.DB!.prepare("SELECT COUNT(*) AS count FROM models").first<CountRow>(); } catch { return null; } })(),
+      (async () => { try { return await env.DB!.prepare("SELECT kind, COUNT(*) AS count FROM catalog_entries GROUP BY kind").all<{ kind: string; count: number }>(); } catch { return null; } })(),
     ]);
 
     const counts = new Map((days.results ?? []).map((row) => [row.day, Number(row.count)]));
@@ -46,8 +47,9 @@ export async function onRequestGet({ request, env }: PagesContext<AdminEnv>) {
       totalVideos: videos.length,
       totalModels: modelCount ? Number(modelCount.count) : performers.length,
       modelCatalogSource: modelCount ? "d1" : "demo",
-      totalChannels: channelDirectory.length,
-      totalCategories: categoryDirectory.length,
+      totalChannels: catalogCounts ? Number(catalogCounts.results?.find((row) => row.kind === "channel")?.count ?? 0) : channelDirectory.length,
+      totalCategories: catalogCounts ? Number(catalogCounts.results?.find((row) => row.kind === "category")?.count ?? 0) : categoryDirectory.length,
+      workspaceCatalogSource: catalogCounts ? "d1" : "demo",
       last7Days,
       topVideos: (topVideos.results ?? []).flatMap((row) => {
         const video = videos.find((item) => item.id === row.video_id);

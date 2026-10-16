@@ -1,5 +1,5 @@
 import {
-  isCountryCode, MODEL_STATUSES, publicSiteUrl, type ManagedModel, type ModelConfig, type ModelInput, type ModelStatus,
+  isCountryCode, MODEL_STATUSES, publicSiteUrl, slugifyModel, type ManagedModel, type ModelConfig, type ModelInput, type ModelStatus,
 } from "../../lib/models";
 import { ApiError } from "./admin-auth";
 import { storageSetup, type MediaEnv } from "./r2-media";
@@ -46,7 +46,7 @@ export function validateModel(body: Record<string, unknown>): ModelInput {
   const photoAssetId = body.photoAssetId ?? null;
   const status = body.status ?? "draft";
   const name = plainText(body.name, "Model name", 100, true);
-  const slug = plainText(body.slug, "Slug", 80, true);
+  const slug = plainText(body.slug ?? (!body.id ? slugifyModel(name) || `model-${crypto.randomUUID().slice(0, 8)}` : ""), "Slug", 80, true);
   if (!MODEL_SLUG_PATTERN.test(slug)) throw new ApiError("Use a lowercase URL slug with letters, numbers and single hyphens.", 400);
   if (countryCode !== null && !isCountryCode(countryCode)) throw new ApiError("Choose a valid country or leave it empty.", 400);
   if (age !== null && (typeof age !== "number" || !Number.isInteger(age) || age < 18 || age > 120)) throw new ApiError("Age is optional; if provided it must be a verified adult age from 18 to 120.", 400);
@@ -55,7 +55,7 @@ export function validateModel(body: Record<string, unknown>): ModelInput {
   if (photoAssetId !== null && (typeof photoAssetId !== "string" || !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(photoAssetId))) throw new ApiError("Select a verified image from the R2 media library.", 400);
   if (body.id !== undefined && (typeof body.id !== "string" || !MODEL_ID_PATTERN.test(body.id))) throw new ApiError("Invalid model identifier.", 400);
   if (body.id !== undefined && (typeof body.revision !== "number" || !Number.isSafeInteger(body.revision) || body.revision < 1)) throw new ApiError("Missing model revision. Reload the model before editing.", 400);
-  const description = plainText(body.description, "Description", 8000, true);
+  const description = plainText(body.description ?? "", "Description", 8000, status === "published");
   return { ...(body.id ? { id: body.id as string, revision: body.revision as number } : {}), name, slug,
     countryCode: countryCode as string | null, age: age as number | null, description,
     seoTitle: plainText(body.seoTitle ?? "", "SEO title", 100), metaDescription: plainText(body.metaDescription ?? "", "Meta description", 300),

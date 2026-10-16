@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, PlayCircle, UserRound } from "lucide-react";
 import type { PerformerProfile, Video } from "@/lib/demo-content";
-import { channelDirectory } from "@/lib/demo-content";
+import { channelDirectory } from "@/lib/public-platform";
 import { performers } from "@/lib/public-models";
 import { siteContent } from "@/lib/site-content";
 
@@ -9,7 +9,7 @@ export function PerformerRelatedContent({ performer, videos }: { performer: Perf
   const similarPerformers = performers.filter((item) => item.slug !== performer.slug).slice(0, 8);
   const featuredChannelNames = Array.from(new Set(videos.map((video) => video.channel)));
   const featuredChannels = featuredChannelNames
-    .map((name) => channelDirectory.find((channel) => channel.name === name))
+    .map((name) => channelDirectory.find((channel) => channel.source === "demo" && channel.name === name))
     .filter((channel) => channel !== undefined);
 
   return (

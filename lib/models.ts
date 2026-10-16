@@ -43,7 +43,7 @@ export function modelMetaDescription(description: string) {
   const cut = text.slice(0, 157); const boundary = cut.lastIndexOf(" ");
   return `${cut.slice(0, boundary > 110 ? boundary : cut.length)}…`;
 }
-export function modelSeoTitle(name: string, custom?: string) { return custom?.trim() || `${name} Profile & Videos | Vidubuzz`; }
+export function modelSeoTitle(name: string, custom?: string, brand = "Vidubuzz") { return custom?.trim() || `${name} Profile & Videos | ${brand}`; }
 export function modelDescription(name: string, description: string, custom?: string) { return custom?.trim() || modelMetaDescription(description) || `Explore ${name}'s profile and video appearances on Vidubuzz.`; }
 export function safeJsonLd(value: unknown) { return JSON.stringify(value).replace(/</g, "\\u003c"); }
 export function publicSiteUrl(value?: string) {

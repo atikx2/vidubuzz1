@@ -1,4 +1,5 @@
 .admin-app, .admin-login-page {
+  color-scheme: dark;
   --admin-bg: #111016;
   --admin-surface: #1a1820;
   --admin-border: rgba(255,255,255,.08);

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, PlayCircle, UserRound } from "lucide-react";
 import type { DirectoryChannel, Video } from "@/lib/demo-content";
-import { channelDirectory } from "@/lib/demo-content";
+import { channelDirectory } from "@/lib/public-platform";
 import { performers } from "@/lib/public-models";
 import { siteContent } from "@/lib/site-content";
 

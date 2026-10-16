@@ -144,7 +144,11 @@ export const channels = [
 ];
 
 export type DirectoryChannel = {
-  id: number;
+  id: number | string;
+  source?: "admin" | "demo";
+  createdAt?: string;
+  imageAlt?: string;
+  seoTitle?: string;
   slug: string;
   name: string;
   videos: string;
@@ -193,7 +197,11 @@ if (allDetailSlugs.some((slug) => !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) || n
 }
 
 export type DirectoryCategory = {
-  id: number;
+  id: number | string;
+  source?: "admin" | "demo";
+  createdAt?: string;
+  imageAlt?: string;
+  seoTitle?: string;
   slug: string;
   name: string;
   videoCount: number;

@@ -11,11 +11,11 @@ export function ChannelProfile({ channel }: { channel: DirectoryChannel }) {
     <section className="channel-profile" aria-labelledby="channel-profile-title">
       <div className="channel-profile-top">
         <div className="channel-profile-avatar">
-          <img src={channel.image} alt={`${channel.name} channel`} width="240" height="135" />
+          <img src={channel.image} alt={channel.imageAlt || `${channel.name} channel`} width="240" height="135" />
           <span className="channel-profile-avatar-ring" />
         </div>
         <div className="channel-profile-identity">
-          <p className="channel-profile-eyebrow">Channel</p>
+          <p className="channel-profile-eyebrow">{channel.source === "demo" ? "Fictional demo channel" : "Channel"}</p>
           <h1 id="channel-profile-title">{channel.name}</h1>
           <div className="channel-profile-stats" aria-label={`${channel.videos}, ${channel.totalViews} views`}>
             <span><PlayCircle size={16} aria-hidden="true" />{channel.videos}</span>

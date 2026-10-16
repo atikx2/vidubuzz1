@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, ListFilter, Play, Radio, Sparkles, UserRound } from "lucide-react";
 import { Pagination } from "@/components/pagination";
-import { channelDirectory, videos, type Video } from "@/lib/demo-content";
+import { videos, type Video } from "@/lib/demo-content";
+import { channelDirectory } from "@/lib/public-catalog-cards";
 import { siteContent } from "@/lib/site-content";
 
 type SortMode = "best" | "latest";
@@ -18,7 +19,7 @@ type VideoListingProps = {
 };
 
 function VideoCard({ video, position }: { video: Video; position: number }) {
-  const channel = channelDirectory.find((item) => item.name === video.channel);
+  const channel = channelDirectory.find((item) => item.source === "demo" && item.name === video.channel);
 
   return (
     <article id={`video-${video.id}`} className="video-card">
@@ -79,9 +80,9 @@ export function VideoListing({
   description = siteContent.videosDescription,
   headingId = "trending-videos",
   headingLevel = "h1",
-  totalPages = 20,
 }: VideoListingProps) {
   const [sortMode, setSortMode] = useState<SortMode>("best");
+  const [page, setPage] = useState(1);
   const sortedVideos = useMemo(() => {
     const sortedItems = [...items];
     if (sortMode === "latest") return sortedItems.sort((a, b) => a.hoursAgo - b.hoursAgo);
@@ -105,7 +106,7 @@ export function VideoListing({
           <select
             id={`${headingId}-sort`}
             value={sortMode}
-            onChange={(event) => setSortMode(event.target.value as SortMode)}
+            onChange={(event) => { setSortMode(event.target.value as SortMode); setPage(1); }}
             aria-label={siteContent.videoFilterAriaLabel}
           >
             <option value="best">{siteContent.bestVideoLabel}</option>
@@ -115,11 +116,12 @@ export function VideoListing({
         </label>
       </div>
       <div className="video-grid">
-        {sortedVideos.map((video, position) => (
+        {sortedVideos.slice((Math.min(page, Math.max(1, Math.ceil(sortedVideos.length / 24))) - 1) * 24, Math.min(page, Math.max(1, Math.ceil(sortedVideos.length / 24))) * 24).map((video, position) => (
           <VideoCard video={video} position={position} key={video.id} />
         ))}
       </div>
-      <Pagination totalPages={totalPages} />
+      {sortedVideos.length === 0 && <p className="public-directory-empty">No videos linked yet.</p>}
+      {sortedVideos.length > 24 && <Pagination totalPages={Math.ceil(sortedVideos.length / 24)} page={Math.min(page, Math.ceil(sortedVideos.length / 24))} onPageChange={setPage} />}
     </section>
   );
 }

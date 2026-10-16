@@ -12,8 +12,8 @@ class Prepared implements D1PreparedStatement {
 
 export class LocalD1 implements D1Database {
   sqlite = new DatabaseSync(":memory:");
-  constructor(media = false, models = false) {
-    for (const file of ["0001_admin_analytics.sql", ...(media || models ? ["0002_r2_media.sql"] : []), ...(models ? ["0003_models.sql"] : [])]) {
+  constructor(media = false, models = false, platform = models) {
+    for (const file of ["0001_admin_analytics.sql", ...(media || models ? ["0002_r2_media.sql"] : []), ...(models ? ["0003_models.sql"] : []), ...(platform ? ["0004_workspace.sql"] : [])]) {
       this.sqlite.exec(readFileSync(new URL(`../../migrations/${file}`, import.meta.url), "utf8"));
     }
   }

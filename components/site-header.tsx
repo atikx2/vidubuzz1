@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   ArrowUpRight,
   ChevronRight,
-  CircleUserRound,
+  ShieldCheck,
   Clock3,
   Menu,
   Search,
@@ -15,6 +15,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { videos } from "@/lib/demo-content";
+import { performers } from "@/lib/public-model-cards";
+import { channelDirectory, categoryDirectory, publicBrandName } from "@/lib/public-catalog-cards";
 
 const jumpLinks = [
   { label: "Trending videos", href: "/#trending-videos" },
@@ -25,14 +27,14 @@ const jumpLinks = [
 
 function BrandMark() {
   return (
-    <Link className="brand-lockup" href="/" aria-label="Vidubuzz home">
+    <Link className="brand-lockup" href="/" aria-label={`${publicBrandName} home`}>
       <span className="brand-symbol" aria-hidden="true">
         <svg viewBox="0 0 40 40" fill="none">
           <path d="M7 10.5h8.3l4.8 14.2 4.8-14.2H33L23.4 31h-6.7L7 10.5Z" fill="currentColor" />
           <path d="M28.2 7.2h5.3v5.2h-5.3z" fill="#FFB2C2" />
         </svg>
       </span>
-      <span className="brand-word">VIDU<span>BUZZ</span></span>
+      <span className="brand-word">{publicBrandName.toLowerCase() === "vidubuzz" ? <>VIDU<span>BUZZ</span></> : publicBrandName}</span>
     </Link>
   );
 }
@@ -50,14 +52,12 @@ function SearchBox({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const query = value.trim().toLowerCase();
-  const results = query
-    ? videos
-        .map((video, index) => ({ video, index }))
-        .filter(({ video }) =>
-          `${video.title} ${video.actors.join(" ")}`.toLowerCase().includes(query),
-        )
-        .slice(0, 5)
-    : [];
+  const results = query ? [
+    ...videos.filter((video) => `${video.title} ${video.actors.join(" ")} ${video.channel}`.toLowerCase().includes(query)).slice(0, 3).map((video) => ({ name: video.title, image: video.imageSmall, href: `/video/${video.id}/`, detail: `${video.performer} · ${video.channel}`, kind: "Video", duration: video.duration })),
+    ...performers.filter((model) => model.name.toLowerCase().includes(query)).slice(0, 2).map((model) => ({ name: model.name, image: model.image, href: `/${model.slug}/`, detail: `${model.videos} · Model profile`, kind: "Model", duration: "" })),
+    ...channelDirectory.filter((channel) => channel.name.toLowerCase().includes(query)).slice(0, 2).map((channel) => ({ name: channel.name, image: channel.image, href: `/${channel.slug}/`, detail: `${channel.videos} · Channel`, kind: "Channel", duration: "" })),
+    ...categoryDirectory.filter((category) => category.name.toLowerCase().includes(query)).slice(0, 2).map((category) => ({ name: category.name, image: category.image, href: `/categories/${category.slug}/`, detail: `${category.videos} · Category`, kind: "Category", duration: "" })),
+  ].slice(0, 7) : [];
 
   useEffect(() => {
     if (mobile) inputRef.current?.focus();
@@ -96,29 +96,18 @@ function SearchBox({
         )}
       </div>
       {query && (
-          <div className="search-results" role="listbox">
+          <div className="search-results" role="region" aria-label="Search results">
             <div className="search-results-heading">
               <span>LIVE RESULTS</span>
-              <span>{results.length ? `${results.length} matches` : "No matches"}</span>
+              <span role="status">{results.length ? `${results.length} matches` : "No matches"}</span>
             </div>
             {results.length ? (
-              results.map(({ video, index }) => (
-                <a
-                  href={`/video/${video.id}/`}
-                  className="search-result"
-                  key={`${video.title}-${index}`}
-                  onClick={onClose}
-                >
-                  <span className="search-result-thumb">
-                    <img src={video.imageSmall} alt="" />
-                    <span><Clock3 size={11} /> {video.duration}</span>
-                  </span>
-                  <span className="search-result-copy">
-                    <strong>{video.title}</strong>
-                    <span>{video.performer} <i>·</i> {video.channel}</span>
-                  </span>
+              results.map((result) => (
+                <Link href={result.href} className="search-result" key={result.href} onClick={() => { onClose?.(); onChange(""); }}>
+                  <span className="search-result-thumb"><img src={result.image} alt="" />{result.duration && <span><Clock3 size={11} /> {result.duration}</span>}</span>
+                  <span className="search-result-copy"><strong>{result.name}</strong><span>{result.detail}</span></span>
                   <ChevronRight size={16} className="search-result-arrow" />
-                </a>
+                </Link>
               ))
             ) : (
               <div className="search-empty">
@@ -126,7 +115,7 @@ function SearchBox({
               </div>
             )}
             {results.length > 0 && (
-              <div className="search-footnote"><Sparkles size={12} /> Matches video titles, models, and channels</div>
+              <div className="search-footnote"><Sparkles size={12} /> Videos, models, channels and categories</div>
             )}
           </div>
       )}
@@ -147,8 +136,9 @@ export function SiteHeader() {
         setSearchValue("");
       }
     }
-    document.addEventListener("mousedown", handlePointerDown);
-    return () => document.removeEventListener("mousedown", handlePointerDown);
+    const escape = (event: KeyboardEvent) => { if (event.key === "Escape") { setMenuOpen(false); setMobileSearchOpen(false); setSearchValue(""); } };
+    document.addEventListener("mousedown", handlePointerDown); document.addEventListener("keydown", escape);
+    return () => { document.removeEventListener("mousedown", handlePointerDown); document.removeEventListener("keydown", escape); };
   }, []);
 
   const closeMobileSearch = () => {
@@ -187,9 +177,7 @@ export function SiteHeader() {
           >
             {mobileSearchOpen ? <X size={20} /> : <Search size={20} />}
           </Button>
-          <Button variant="ghost" size="icon" className="header-icon account-trigger" aria-label="Account">
-            <CircleUserRound size={21} strokeWidth={1.8} />
-          </Button>
+          <Button variant="ghost" size="icon" className="header-icon account-trigger" asChild><Link href="/admin/login/" aria-label="Administrator sign in"><ShieldCheck size={21} strokeWidth={1.8} /></Link></Button>
           <span className="header-divider" />
           <Button
             variant="ghost"

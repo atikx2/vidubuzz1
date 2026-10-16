@@ -5,15 +5,16 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, ChevronLeft, ChevronRight, CloudUpload, Images, LoaderCircle, RefreshCw, UserRound, X } from "lucide-react";
 import { AdminApiError, adminPost, adminRequest } from "@/lib/admin-api";
-import { type MediaAsset, type MediaConfig, type PresignedUpload } from "@/lib/media-assets";
+import { type MediaAsset, type MediaConfig, type MediaPurpose, type PresignedUpload } from "@/lib/media-assets";
 import { inspectMediaFile, putDirectToR2 } from "@/lib/media-upload-client";
 
 type Gallery = { assets: MediaAsset[]; page: number; total: number; totalPages: number };
 type Photo = { id: string | null; url: string | null };
 type Phase = "idle" | "preparing" | "uploading" | "verifying";
 
-export function AdminModelPhotoPicker({ value, onChange, disabled, onBusyChange }: {
+export function AdminModelPhotoPicker({ value, onChange, disabled, onBusyChange, purpose = "model-photo", label = "Model" }: {
   value: Photo; onChange: (photo: Photo) => void; disabled: boolean; onBusyChange: (busy: boolean) => void;
+  purpose?: Extract<MediaPurpose, "model-photo" | "channel-photo" | "thumbnail">; label?: string;
 }) {
   const router = useRouter();
   const [config, setConfig] = useState<MediaConfig | null>(null);
@@ -71,7 +72,7 @@ export function AdminModelPhotoPicker({ value, onChange, disabled, onBusyChange 
     let uploaded = false;
     let id: string | null = null;
     try {
-      const intent = await inspectMediaFile(file, "model-photo");
+      const intent = await inspectMediaFile(file, purpose);
       if (controller.signal.aborted) throw new DOMException("Upload cancelled", "AbortError");
       const signed = await adminPost<PresignedUpload>("/api/admin/media/presign", intent);
       if (controller.signal.aborted) throw new DOMException("Upload cancelled", "AbortError");
@@ -97,18 +98,18 @@ export function AdminModelPhotoPicker({ value, onChange, disabled, onBusyChange 
 
   return <div className="model-photo-picker">
     <div className="model-photo-selection">
-      <div className="model-photo-preview">{value.url ? <img key={value.url} src={value.url} alt="Selected model thumbnail" decoding="async" /> : <UserRound size={34} strokeWidth={1.3} />}{value.id && <span><Check size={11} />R2</span>}</div>
-      <div><strong>Profile thumbnail</strong><p>A clear portrait works best.<br />JPEG, PNG, WebP or AVIF · up to 5 MB.</p>
+      <div className="model-photo-preview">{value.url ? <img key={value.url} src={value.url} alt={`Selected ${label.toLowerCase()} thumbnail`} decoding="async" /> : <UserRound size={34} strokeWidth={1.3} />}{value.id && <span><Check size={11} />R2</span>}</div>
+      <div><strong>{label} thumbnail</strong><p>Choose a clear, permitted image.<br />JPEG, PNG, WebP or AVIF · up to 5 MB.</p>
         <div className="model-photo-buttons"><button className="model-button model-button-secondary" type="button" disabled={disabled || busy || !config?.configured} onClick={() => setOpen((current) => !current)} aria-expanded={open} aria-controls="model-photo-gallery"><Images size={14} />{open ? "Hide library" : "Choose image"}</button>
           <button className="model-button model-button-quiet" type="button" disabled={disabled || busy || !config?.configured || !!pendingId} onClick={() => input.current?.click()}><CloudUpload size={14} />Upload photo</button>
-          {value.url && <button className="model-photo-remove" type="button" disabled={disabled || busy} onClick={() => onChange({ id: null, url: null })} aria-label="Remove selected model photo"><X size={14} /></button>}
+          {value.url && <button className="model-photo-remove" type="button" disabled={disabled || busy} onClick={() => onChange({ id: null, url: null })} aria-label={`Remove selected ${label.toLowerCase()} photo`}><X size={14} /></button>}
         </div>
       </div>
     </div>
-    <input ref={input} className="admin-visually-hidden" type="file" accept="image/jpeg,image/png,image/webp,image/avif" aria-label="Upload model photo" disabled={disabled || busy || !config?.configured} onChange={(event) => { const file = event.target.files?.[0]; if (file) void upload(file); }} />
+    <input ref={input} className="admin-visually-hidden" type="file" accept="image/jpeg,image/png,image/webp,image/avif" aria-label={`Upload ${label.toLowerCase()} photo`} disabled={disabled || busy || !config?.configured} onChange={(event) => { const file = event.target.files?.[0]; if (file) void upload(file); }} />
     {!config && !error && <p className="model-field-hint">Checking R2 connection…</p>}
     {config && !config.configured && <p className="model-field-hint model-text-amber">R2 setup is incomplete. Check the <Link href="/admin/media/" target="_blank">Media library</Link> first. You can still save a draft.</p>}
-    {busy && <div className="model-upload-status" role="status"><span><LoaderCircle size={14} className="admin-refresh-spinning" />{phase === "preparing" ? "Checking and preparing photo…" : phase === "uploading" ? `Uploading to R2 · ${progress}%` : "Verifying photo…"}</span><progress max={100} value={progress} aria-label="Model photo upload progress" />{phase !== "verifying" && <button type="button" onClick={() => uploadController.current?.abort()}>Cancel upload</button>}</div>}
+    {busy && <div className="model-upload-status" role="status"><span><LoaderCircle size={14} className="admin-refresh-spinning" />{phase === "preparing" ? "Checking and preparing photo…" : phase === "uploading" ? `Uploading to R2 · ${progress}%` : "Verifying photo…"}</span><progress max={100} value={progress} aria-label={`${label} photo upload progress`} />{phase !== "verifying" && <button type="button" onClick={() => uploadController.current?.abort()}>Cancel upload</button>}</div>}
     {error && <p className="admin-form-error" role="alert">{error}</p>}
     {pendingId && !busy && <button type="button" className="model-button model-button-secondary model-retry-photo" disabled={disabled} onClick={() => void retryVerification()}><RefreshCw size={13} />Retry photo verification</button>}
     {open && <div className="model-photo-gallery" id="model-photo-gallery" aria-busy={loading}>

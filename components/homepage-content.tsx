@@ -4,7 +4,7 @@ import {
   Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { channelDirectory, channels } from "@/lib/demo-content";
+import { channelDirectory } from "@/lib/public-platform";
 import { performers } from "@/lib/public-models";
 import { VideoListing } from "@/components/video-listing";
 import { siteContent } from "@/lib/site-content";
@@ -81,12 +81,12 @@ function ChannelSection() {
         link="/channels/"
       />
       <div className="channel-grid">
-        {channels.map((channel) => {
-          const detail = channelDirectory.find((item) => item.name === channel.name);
+        {channelDirectory.slice(0, 6).map((channel, index) => {
+          const detail = channel;
           return (
             <Link className="channel-card" href={detail ? `/${detail.slug}/` : "/channels/"} key={channel.name}>
-              <div className={`channel-logo ${channel.tone}`}>
-                <span>{channel.mark}</span>
+              <div className={`channel-logo ${["channel-rose", "channel-violet", "channel-amber"][index % 3]}`}>
+                <span>{channel.name.split(/\s+/).map((word) => word[0]).slice(0, 2).join("")}</span>
                 <span className="channel-logo-orbit" />
               </div>
               <div className="channel-copy">

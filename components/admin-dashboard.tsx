@@ -55,7 +55,7 @@ function ViewsChart({ data }: { data: Metrics["last7Days"] }) {
   );
 }
 
-export function AdminDashboard() {
+export function AdminDashboard({ analyticsOnly = false }: { analyticsOnly?: boolean }) {
   const router = useRouter();
   const { session, loading: sessionLoading, error: sessionError } = useAdminSession();
   const [metrics, setMetrics] = useState<Metrics | null>(null);
@@ -105,7 +105,7 @@ export function AdminDashboard() {
   const setupError = sessionError || error;
 
   return (
-    <AdminShell title="Dashboard" subtitle="Your traffic, content and workspace — in one place." email={session?.email}>
+    <AdminShell title={analyticsOnly ? "Analytics" : "Dashboard"} subtitle={analyticsOnly ? "Real visitor activity and video plays, without fabricated traffic." : "Your traffic, content and workspace — in one place."} email={session?.email}>
       {setupError && <div className="admin-config-alert" role="status"><ShieldCheck size={19} /><div><strong>{metrics ? "Live update paused" : "Dashboard setup needed"}</strong><p>{setupError}</p></div></div>}
       {session?.mustChangePassword && <div className="admin-password-reminder"><ShieldCheck size={17} /><span>You are using the initial password. Update it to secure your account.</span><Link href="/admin/profile/">Change password<ArrowUpRight size={14} /></Link></div>}
       <div className="admin-overview-heading"><span><i className="admin-live-dot" /> SITE OVERVIEW</span><button className="admin-refresh-button" type="button" disabled={!session || loadingMetrics} onClick={() => refreshRef.current()}><RefreshCw size={14} className={loadingMetrics ? "admin-refresh-spinning" : ""} /><span>{loadingMetrics ? "Refreshing" : "Refresh"}</span></button></div>
@@ -129,17 +129,17 @@ export function AdminDashboard() {
           {metrics?.topVideos.length ? <ol className="admin-popular-list">{metrics.topVideos.map((video, index) => <li key={video.id}><span className="admin-popular-rank">{String(index + 1).padStart(2, "0")}</span><Link href={`/video/${video.id}/`}><strong>{video.title}</strong><small>{video.channel}</small></Link><span className="admin-popular-views"><Eye size={13} />{formatNumber(video.views)}</span></li>)}</ol>
             : <div className="admin-empty-state"><Play size={21} /><strong>No video plays yet</strong><p>Videos appear here when visitors start playback.</p></div>}
         </section>
-        <section className="admin-panel-card admin-quick-panel" aria-labelledby="admin-quick-title">
-          <div className="admin-panel-heading"><div><p>CONTENT WORKSPACE</p><h2 id="admin-quick-title">Your catalog</h2><span>Read-only summary of current demo records</span></div><span className="admin-panel-icon"><Clapperboard size={19} /></span></div>
+        {!analyticsOnly && <section className="admin-panel-card admin-quick-panel" aria-labelledby="admin-quick-title">
+          <div className="admin-panel-heading"><div><p>CONTENT WORKSPACE</p><h2 id="admin-quick-title">Your catalog</h2><span>Manage your catalog · video editor comes later</span></div><span className="admin-panel-icon"><Clapperboard size={19} /></span></div>
           <div className="admin-catalog-list">
             {[
               { id: "videos", title: "Videos", count: metrics?.totalVideos, icon: Clapperboard, href: "/#trending-videos", note: "Video library" },
               { id: "models", title: "Models", count: metrics?.totalModels, icon: UsersRound, href: "/admin/models/", note: "Manage model profiles" },
-              { id: "channels", title: "Channels", count: metrics?.totalChannels, icon: Radio, href: "/channels/", note: "Channel directory" },
-              { id: "categories", title: "Categories", count: metrics?.totalCategories, icon: Tags, href: "/categories/", note: "Browsing taxonomy" },
-            ].map(({ icon: Icon, ...item }) => <div className="admin-catalog-row" id={item.id} key={item.id}><span className="admin-catalog-icon"><Icon size={17} /></span><span><strong>{item.title}</strong><small>{item.note}</small></span><b>{item.count === undefined ? "—" : formatNumber(item.count)}</b><Link href={item.href} aria-label={`View public ${item.title.toLowerCase()}`}><ArrowUpRight size={17} /></Link></div>)}
+              { id: "channels", title: "Channels", count: metrics?.totalChannels, icon: Radio, href: "/admin/channels/", note: "Manage channels" },
+              { id: "categories", title: "Categories", count: metrics?.totalCategories, icon: Tags, href: "/admin/categories/", note: "Manage browsing taxonomy" },
+            ].map(({ icon: Icon, ...item }) => <div className="admin-catalog-row" id={item.id} key={item.id}><span className="admin-catalog-icon"><Icon size={17} /></span><span><strong>{item.title}</strong><small>{item.note}</small></span><b>{item.count === undefined ? "—" : formatNumber(item.count)}</b><Link href={item.href} aria-label={item.id === "videos" ? "View public videos (editor deferred)" : `Manage ${item.title.toLowerCase()}`}><ArrowUpRight size={17} /></Link></div>)}
           </div>
-        </section>
+        </section>}
       </div>
       <p className="admin-dashboard-footnote"><ShieldCheck size={14} /><span>Anonymous browser-session analytics. Admin visits are excluded; plays are deduplicated for 30 minutes.</span></p>
     </AdminShell>

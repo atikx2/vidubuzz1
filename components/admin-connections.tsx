@@ -1,0 +1,53 @@
+"use client";
+
+import Link from "next/link";
+import { useRef, useState } from "react";
+import { ArrowDownToLine, ArrowUpRight, Check, CheckCircle2, ChevronDown, CircleAlert, Code2, Copy, Database, ExternalLink, LockKeyhole, PlugZap, ShieldCheck } from "lucide-react";
+import { AdminShell } from "@/components/admin-shell";
+import { useAdminSession } from "@/components/use-admin-session";
+import { AdminPublishing, WorkspaceAlert, WorkspaceLoading, WorkspaceRefresh, useAdminResource } from "@/components/admin-workspace-shared";
+import type { PlatformConfig } from "@/lib/platform";
+import migrationSql from "../.generated/workspace-migration.json";
+
+const endpoints = [
+  { method: "GET", path: "/api/admin/session", use: "Current admin session" },
+  { method: "GET", path: "/api/admin/connections", use: "Safe setup status, no secret values" },
+  { method: "GET / POST", path: "/api/admin/settings", use: "Read/save site settings with revision checks" },
+  { method: "GET", path: "/api/admin/models/", use: "Search and paginate models" },
+  { method: "POST", path: "/api/admin/models/save", use: "Create/edit an adult-confirmed model" },
+  { method: "GET", path: "/api/admin/catalog/?kind=channel", use: "Channels; use kind=category for categories" },
+  { method: "POST", path: "/api/admin/catalog/save", use: "Create/edit a channel or category" },
+  { method: "GET", path: "/api/admin/pages/", use: "Read editable information pages" },
+  { method: "POST", path: "/api/admin/pages/save", use: "Save a draft or reviewed public page" },
+  { method: "GET", path: "/api/admin/media/", use: "Verified R2 media library" },
+  { method: "POST", path: "/api/admin/publish", use: "Queue one static Pages build, not instant publication" },
+];
+const buildVars = [
+  { name: "R2_ACCOUNT_ID", type: "Text", note: "Existing Cloudflare Account ID; used for the D1 REST endpoint too." },
+  { name: "R2_PUBLIC_BASE_URL", type: "Text", note: "Your existing public asset origin, with no path or trailing slash." },
+  { name: "D1_DATABASE_ID", type: "Text", note: "The ID of the SAME database bound as DB—not a new database." },
+  { name: "D1_READ_TOKEN", type: "Secret", note: "Account-scoped D1 Read token. Set privately for builds and Functions." },
+  { name: "PAGES_DEPLOY_HOOK", type: "Secret", note: "A Pages hook for this project's correct branch/environment." },
+  { name: "NEXT_PUBLIC_SITE_URL", type: "Text", note: "Your canonical HTTPS origin. Also editable as an override in Settings." },
+];
+export function AdminConnections() {
+  const { session, loading: sessionLoading, error: sessionError } = useAdminSession(), [refresh, setRefresh] = useState(0);
+  const config = useAdminResource<PlatformConfig>("/api/admin/connections", Boolean(session), refresh);
+  const [copied, setCopied] = useState(false), [copyError, setCopyError] = useState(""), [showSql, setShowSql] = useState(false);
+  const sqlRef = useRef<HTMLTextAreaElement>(null);
+  async function copySql() {
+    setCopyError(""); setCopied(false);
+    try { await navigator.clipboard.writeText(migrationSql); setCopied(true); }
+    catch { setShowSql(true); setCopyError("Automatic copy was blocked. Open the SQL box below, select all of its code, and copy it manually."); window.setTimeout(() => { sqlRef.current?.focus(); sqlRef.current?.select(); }, 0); }
+  }
+  const ready = config.data?.connections.filter((connection) => connection.state === "ready").length ?? 0;
+  return <AdminShell title="API & Connections" subtitle="Understand what is connected, what needs setup and how your private admin APIs work." email={session?.email}>
+    {(sessionError || config.error) && <WorkspaceAlert>{sessionError || config.error}</WorkspaceAlert>}
+    <section className="workspace-hero"><span className="workspace-hero-icon"><PlugZap size={28} /></span><div><p className="workspace-eyebrow">CONNECTION CENTER</p><h2>A clear picture of your setup</h2><p>No API keys displayed. No extra video-provider integration. Public catalog pages stay static.</p></div><WorkspaceRefresh busy={sessionLoading || config.loading} onClick={() => setRefresh((n) => n + 1)} /></section>
+    {!config.data && (sessionLoading || config.loading) ? <WorkspaceLoading /> : config.data && <><div className="workspace-connections-heading"><h2>Infrastructure</h2><span>{ready} / {config.data.connections.length} settings checks ready</span></div><div className="workspace-connection-grid">{config.data.connections.map((connection) => <article className={`workspace-connection-card connection-${connection.state}`} key={connection.key}><div><span className="workspace-connection-icon">{connection.key === "database" || connection.key === "workspace" ? <Database size={20} /> : <PlugZap size={20} />}</span><span className="workspace-connection-state">{connection.state === "ready" ? <CheckCircle2 size={13} /> : <CircleAlert size={13} />}{connection.state === "ready" ? "Settings ready" : connection.state === "error" ? "Check failed" : "Setup needed"}</span></div><h3>{connection.name}</h3><p>{connection.message}</p>{!!connection.missing?.length && <div className="workspace-env-tags">{connection.missing.map((name) => <code key={name}>{name}</code>)}</div>}</article>)}</div></>}
+    <section className="workspace-panel workspace-migration-panel"><div className="workspace-panel-heading"><div><p className="workspace-eyebrow">PHONE-FRIENDLY SETUP</p><h2>Database update · migration 0004</h2></div><span className="workspace-settings-badge"><ShieldCheck size={15} />No reset / delete</span></div><div className="workspace-panel-body"><p className="workspace-body-copy">Adds channels, categories, site settings and five private draft pages. Keeps your existing admin password, saved models and uploaded media. Run it once on the existing database bound as <code>DB</code>.</p><ol className="workspace-instructions"><li>Press <strong>Copy complete SQL</strong> below.</li><li>Open Cloudflare → D1 → your existing database → Console.</li><li>Clear only the query editor, paste the entire SQL, then Execute/Run.</li><li>The final verification returns 20 catalog entries and 5 information pages on a fresh migration. If you already added records, counts can be higher.</li><li>Return here and press Refresh. Do not create another database.</li></ol><div className="workspace-action-row"><button className="model-button model-button-primary" type="button" onClick={() => void copySql()}>{copied ? <Check size={16} /> : <Copy size={16} />}{copied ? "SQL copied" : "Copy complete SQL"}</button><a className="model-button model-button-secondary" href={`data:text/plain;charset=utf-8,${encodeURIComponent(migrationSql)}`} download="0004_workspace.sql"><ArrowDownToLine size={15} />Download SQL</a><button className="model-button model-button-quiet" type="button" aria-expanded={showSql} aria-controls="workspace-sql-source" onClick={() => setShowSql((value) => !value)}><Code2 size={15} />{showSql ? "Hide SQL" : "Show SQL"}</button></div>{copyError && <WorkspaceAlert>{copyError}</WorkspaceAlert>}{showSql && <div className="model-field workspace-sql-field" id="workspace-sql-source"><label htmlFor="workspace-sql">Complete migration + verification query</label><textarea id="workspace-sql" ref={sqlRef} readOnly rows={12} value={migrationSql} spellCheck={false} onFocus={(event) => event.target.select()} /></div>}<p className="model-field-hint">“This query returned no data” is normal for CREATE/INSERT statements. Scroll to the final SELECT result, or run that verification query by itself.</p></div></section>
+    <section className="workspace-panel"><div className="workspace-panel-heading"><div><p className="workspace-eyebrow">BUILD & PUBLISH</p><h2>Private environment settings</h2></div><LockKeyhole size={21} /></div><div className="workspace-panel-body"><p className="workspace-body-copy">Add these in your Pages project's build and Functions environment for the branch you are deploying. Keep existing login and R2 secrets unchanged. Never paste secrets into this page, chat, screenshots, or NEXT_PUBLIC_* variables.</p><div className="workspace-env-list">{buildVars.map((variable) => <div key={variable.name}><span><code>{variable.name}</code><small className={variable.type === "Secret" ? "workspace-private-label" : ""}>{variable.type}</small></span><p>{variable.note}</p></div>)}</div><details className="workspace-details"><summary><span>How to finish publishing setup</span><ChevronDown size={17} /></summary><div className="workspace-details-body"><ol className="workspace-instructions"><li>Apply migration 0004 to the existing D1 database.</li><li>Create a Cloudflare API token with <strong>Account → D1 → Read</strong> for this account. Enter it privately as D1_READ_TOKEN.</li><li>Copy the database ID from D1 Overview to D1_DATABASE_ID.</li><li>In Pages Settings → Builds, create a deploy hook for this project's correct branch. Save the URL privately as PAGES_DEPLOY_HOOK.</li><li>Set the variables in the matching build/Functions environment, then redeploy once so Functions receive them.</li><li>Use Publish site, wait for Cloudflare's successful deployment, then inspect the public page and Search Console tag.</li></ol><p className="model-field-hint">A queued build is not a live deployment. Invalid tokens, missing images, migrations or concurrent edits fail the build closed and leave the previous live deployment intact.</p></div></details><div className="workspace-utility-links"><Link href="/admin/media/">R2 media library<ArrowUpRight size={13} /></Link><Link href="/admin/settings/?tab=seo">Search Console settings<ExternalLink size={13} /></Link></div></div></section>
+    <section className="workspace-panel"><div className="workspace-panel-heading"><div><p className="workspace-eyebrow">PRIVATE ADMIN API</p><h2>Endpoint reference</h2></div><Code2 size={21} /></div><div className="workspace-panel-body"><p className="workspace-body-copy">All endpoints below require your HttpOnly admin-session cookie. Mutations require the same origin, validated JSON and rate limits. This is not a public API-key service. There is no visitor login.</p><div className="workspace-endpoint-list">{endpoints.map((endpoint) => <div key={endpoint.path}><span>{endpoint.method}</span><div><code>{endpoint.path}</code><p>{endpoint.use}</p></div><LockKeyhole size={14} aria-label="Admin session required" /></div>)}</div><p className="workspace-security-footnote"><ShieldCheck size={15} />No per-request CPU guarantee is implied by these status checks. Real resource usage is measured by Cloudflare; static assets and admin Functions are different paths.</p></div></section>
+    <AdminPublishing config={config.data} />
+  </AdminShell>;
+}

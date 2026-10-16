@@ -1,6 +1,6 @@
 # R2 media storage — thumbnails, photos and short previews
 
-B2 is no longer used. This chunk adds `/admin/media/`, an admin-only R2 uploader and a verified media library. The public website remains a Next.js static export. **Main videos are provider URLs and are never uploaded by this library.** Model/channel/video content-editing forms are a separate next chunk; uploading an asset here does not automatically create or change a public content page.
+B2 is no longer used. This chunk adds `/admin/media/`, an admin-only R2 uploader and a verified media library. The public website remains a Next.js static export. **Main videos are provider URLs and are never uploaded by this library.** Models, Channels and Categories can now select verified images in the [admin workspace](workspace-setup.md). Video management remains later; uploading an asset alone does not create or publish a content page.
 
 ## Upload and delivery flow
 
@@ -102,7 +102,7 @@ An upload completing does not prove the public domain/cache configuration is cor
 - Signing is limited to **20 upload intents per admin per ten minutes**. Verification is limited separately. Incomplete/aborted direct uploads can leave unverified objects/intents; review these before high-volume operation. This first chunk has no media delete/garbage-collection job or reference-management UI.
 - Public media does not invoke a custom Worker file proxy. Admin session checks, signing, verification and D1 writes still use Functions CPU/operations; existing anonymous visitor analytics remain separate. No production 10 ms CPU guarantee is made without measuring Cloudflare invocations.
 - Prepared preview delivery uses R2, not the generic B2 CDN workaround. R2/Cloudflare content policies, storage and Class A/B operation quotas/billing still apply. Do not assume unlimited free storage or transformations. No automatic image processing/video-preview generation is part of this chunk.
-- Asset uploads do **not** create public model/channel/video records or static routes yet. Those editors/publishing are the next requested chunk.
+- Asset uploads do **not** automatically create or publish public records. Select a verified image in the Models/Channels/Categories editor, save the record, then complete a successful static build; see [workspace setup](workspace-setup.md). Video management remains deferred.
 
 ## Local validation
 

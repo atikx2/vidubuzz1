@@ -5,18 +5,21 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   ArrowUpRight, ChartNoAxesCombined, Clapperboard, Images, LayoutDashboard, LogOut,
-  Radio, ShieldCheck, Tags, UserRound, UsersRound,
+  FileText, PlugZap, Radio, Settings2, ShieldCheck, Tags, UserRound, UsersRound,
 } from "lucide-react";
 import { adminPost } from "@/lib/admin-api";
 
 const navigation = [
   { label: "Dashboard", href: "/admin/", icon: LayoutDashboard, section: "dashboard" },
-  { label: "Analytics", href: "/admin/#analytics", icon: ChartNoAxesCombined, section: "analytics" },
+  { label: "Analytics", href: "/admin/analytics/", icon: ChartNoAxesCombined, section: "analytics" },
   { label: "Videos", href: "/admin/#videos", icon: Clapperboard, section: "videos" },
   { label: "Media", href: "/admin/media/", icon: Images, section: "media" },
   { label: "Models", href: "/admin/models/", icon: UsersRound, section: "models" },
-  { label: "Channels", href: "/admin/#channels", icon: Radio, section: "channels" },
-  { label: "Categories", href: "/admin/#categories", icon: Tags, section: "categories" },
+  { label: "Channels", href: "/admin/channels/", icon: Radio, section: "channels" },
+  { label: "Categories", href: "/admin/categories/", icon: Tags, section: "categories" },
+  { label: "Pages", href: "/admin/pages/", icon: FileText, section: "pages" },
+  { label: "Settings", href: "/admin/settings/", icon: Settings2, section: "settings" },
+  { label: "API", href: "/admin/api/", icon: PlugZap, section: "api" },
   { label: "Profile", href: "/admin/profile/", icon: UserRound, section: "profile" },
 ];
 
@@ -62,9 +65,7 @@ export function AdminShell({ children, title, subtitle, email }: { children: Rea
   }
 
   function isActive(section: string) {
-    if (section === "profile") return pathname === "/admin/profile";
-    if (section === "media") return pathname === "/admin/media";
-    if (section === "models") return pathname === "/admin/models";
+    if (!["dashboard", "videos"].includes(section)) return pathname === `/admin/${section}`;
     return pathname === "/admin" && (section === "dashboard" ? !hash : hash === `#${section}`);
   }
 
@@ -72,9 +73,9 @@ export function AdminShell({ children, title, subtitle, email }: { children: Rea
     <nav ref={mobile ? mobileNavRef : undefined} className={mobile ? "admin-nav admin-nav-mobile" : "admin-nav admin-nav-desktop"} aria-label={mobile ? "Admin menu, swipe to see more" : "Admin menu"}>
       {navigation.map(({ label, href, icon: Icon, section }) => (
         <Link className={`admin-nav-link ${isActive(section) ? "admin-nav-link-active" : ""}`} href={href} key={section}
-          aria-current={isActive(section) ? (section === "profile" || section === "media" || section === "models" || section === "dashboard" ? "page" : "location") : undefined}
+          aria-current={isActive(section) ? (section === "videos" ? "location" : "page") : undefined}
           onClick={() => setHash(href.includes("#") ? `#${section}` : "")}>
-          <Icon size={18} strokeWidth={1.8} aria-hidden="true" /><span>{label}</span>
+          <Icon size={18} strokeWidth={1.8} aria-hidden="true" /><span>{label}</span>{section === "videos" && <small className="admin-menu-later">Later</small>}
         </Link>
       ))}
     </nav>
@@ -108,7 +109,7 @@ export function AdminShell({ children, title, subtitle, email }: { children: Rea
         {nav(true)}
         <main className="admin-content" id="admin-main">
           <div className="admin-page-heading">
-            <div><p>YOUR WORKSPACE, AT A GLANCE</p><h1>{title}</h1><span>{subtitle}</span></div>
+            <div><p>YOUR WORKSPACE</p><h1>{title}</h1><span>{subtitle}</span></div>
             {email && <Link href="/admin/profile/" className="admin-account-chip"><span className="admin-account-avatar"><UserRound size={17} /></span><span><strong>Administrator</strong><small>{email}</small></span></Link>}
           </div>
           {logoutError && <p className="admin-form-error" role="alert">{logoutError}</p>}

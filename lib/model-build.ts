@@ -21,12 +21,16 @@ export async function buildModelSnapshot(env: ModelBuildEnv, fetcher: typeof fet
   if (!env.D1_DATABASE_ID || !env.D1_READ_TOKEN || !env.R2_ACCOUNT_ID || !/^[a-f0-9]{32}$/i.test(env.R2_ACCOUNT_ID)
     || !/^[a-z0-9-]{20,64}$/i.test(env.D1_DATABASE_ID)) throw new Error("Incomplete model build settings: set D1_DATABASE_ID, D1_READ_TOKEN and the actual R2_ACCOUNT_ID. Refusing a silent demo fallback.");
   async function query<T>(sql: string, params: Array<string | number> = []): Promise<T[]> {
-    const response = await fetcher(`https://api.cloudflare.com/client/v4/accounts/${env.R2_ACCOUNT_ID}/d1/database/${env.D1_DATABASE_ID}/query`, {
-      method: "POST", headers: { authorization: `Bearer ${env.D1_READ_TOKEN}`, "content-type": "application/json" },
-      body: JSON.stringify({ sql, params }), signal: AbortSignal.timeout(25_000),
-    });
+    let response: Response;
+    try {
+      response = await fetcher(`https://api.cloudflare.com/client/v4/accounts/${env.R2_ACCOUNT_ID}/d1/database/${env.D1_DATABASE_ID}/query`, {
+        method: "POST", headers: { authorization: `Bearer ${env.D1_READ_TOKEN}`, "content-type": "application/json" },
+        body: JSON.stringify({ sql, params }), signal: AbortSignal.timeout(25_000),
+      });
+    } catch { throw new Error("Model snapshot request failed or timed out. Check private D1 build settings and migrations; private request details are not logged."); }
     if (!response.ok) throw new Error(`Model snapshot query failed (${response.status}). Check the D1 read token, database ID and migration 0003. Existing deployed pages are unchanged.`);
-    const data = await response.json() as { success?: boolean; result?: Array<{ success?: boolean; results?: T[] }> };
+    let data: { success?: boolean; result?: Array<{ success?: boolean; results?: T[] }> };
+    try { data = await response.json(); } catch { throw new Error("D1 did not return a valid model snapshot. Refusing to publish partial content."); }
     if (!data.success || !data.result?.[0]?.success || !Array.isArray(data.result[0].results)) throw new Error("D1 did not return a valid model snapshot. Refusing to publish partial content.");
     return data.result[0].results;
   }

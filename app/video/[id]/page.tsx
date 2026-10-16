@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { VideoPageInfo } from "@/components/video-page-info";
 import { VideoPlayer } from "@/components/video-player";
 import { videos } from "@/lib/demo-content";
+import { publicRobots, siteSettings } from "@/lib/public-platform";
 import { videoSourcesById } from "@/lib/video-sources";
 
 type VideoPageProps = { params: Promise<{ id: string }> };
@@ -25,15 +26,15 @@ export async function generateMetadata({ params }: VideoPageProps): Promise<Meta
   if (!video) return {};
 
   return {
-    title: `${video.title} | Vidubuzz`,
+    title: `${video.title} | ${siteSettings.brandName}`,
     description: video.description,
     alternates: { canonical: `/video/${video.id}/` },
-    robots: { index: true, follow: true },
+    robots: publicRobots(),
     openGraph: {
-      title: `${video.title} | Vidubuzz`,
+      title: `${video.title} | ${siteSettings.brandName}`,
       description: video.description,
       type: "video.other",
-      siteName: "Vidubuzz",
+      siteName: siteSettings.brandName,
     },
     twitter: { card: "summary", title: video.title, description: video.description },
   };
