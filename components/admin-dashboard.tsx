@@ -134,7 +134,7 @@ export function AdminDashboard() {
           <div className="admin-catalog-list">
             {[
               { id: "videos", title: "Videos", count: metrics?.totalVideos, icon: Clapperboard, href: "/#trending-videos", note: "Video library" },
-              { id: "models", title: "Models", count: metrics?.totalModels, icon: UsersRound, href: "/pornstars/", note: "Performer directory" },
+              { id: "models", title: "Models", count: metrics?.totalModels, icon: UsersRound, href: "/admin/models/", note: "Manage model profiles" },
               { id: "channels", title: "Channels", count: metrics?.totalChannels, icon: Radio, href: "/channels/", note: "Channel directory" },
               { id: "categories", title: "Categories", count: metrics?.totalCategories, icon: Tags, href: "/categories/", note: "Browsing taxonomy" },
             ].map(({ icon: Icon, ...item }) => <div className="admin-catalog-row" id={item.id} key={item.id}><span className="admin-catalog-icon"><Icon size={17} /></span><span><strong>{item.title}</strong><small>{item.note}</small></span><b>{item.count === undefined ? "—" : formatNumber(item.count)}</b><Link href={item.href} aria-label={`View public ${item.title.toLowerCase()}`}><ArrowUpRight size={17} /></Link></div>)}

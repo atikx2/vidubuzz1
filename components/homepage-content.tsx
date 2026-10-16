@@ -4,7 +4,8 @@ import {
   Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { channelDirectory, channels, performers } from "@/lib/demo-content";
+import { channelDirectory, channels } from "@/lib/demo-content";
+import { performers } from "@/lib/public-models";
 import { VideoListing } from "@/components/video-listing";
 import { siteContent } from "@/lib/site-content";
 
@@ -54,7 +55,7 @@ function PerformerSection() {
         link="/pornstars/"
       />
       <div className="performer-grid">
-        {performers.map((performer) => (
+        {performers.slice(0, 8).map((performer) => (
           <Link className="performer-card" href={`/${performer.slug}/`} key={performer.name}>
             <div className={`performer-portrait ${performer.tone}`}>
               <img src={performer.image} alt="" loading="lazy" decoding="async" />

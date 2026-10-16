@@ -8,15 +8,17 @@ type PageItem = number | "ellipsis-start" | "ellipsis-end";
 
 function pageItemsFor(page: number, totalPages: number): PageItem[] {
   if (totalPages <= 8) return Array.from({ length: totalPages }, (_, index) => index + 1);
-  if (page <= 5) return [1, 2, 3, 4, 5, "ellipsis-start", totalPages - 5, "ellipsis-end", totalPages];
+  if (page <= 5) return [1, 2, 3, 4, 5, 6, "ellipsis-end", totalPages];
   if (page >= totalPages - 4) {
     return [1, "ellipsis-start", ...Array.from({ length: 6 }, (_, index) => totalPages - 5 + index)];
   }
   return [1, "ellipsis-start", page - 1, page, page + 1, "ellipsis-end", totalPages];
 }
 
-export function Pagination({ totalPages = 20 }: { totalPages?: number }) {
-  const [page, setPage] = useState(1);
+export function Pagination({ totalPages = 20, page: controlledPage, onPageChange }: { totalPages?: number; page?: number; onPageChange?: (page: number) => void }) {
+  const [internalPage, setInternalPage] = useState(1);
+  const page = controlledPage ?? internalPage;
+  const setPage = (next: number) => { setInternalPage(next); onPageChange?.(next); };
   const items = pageItemsFor(page, totalPages);
 
   return (
@@ -25,7 +27,7 @@ export function Pagination({ totalPages = 20 }: { totalPages?: number }) {
         type="button"
         className="pagination-next"
         disabled={page >= totalPages}
-        onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+        onClick={() => setPage(Math.min(totalPages, page + 1))}
       >
         {siteContent.paginationNextLabel}<ChevronRight size={17} />
       </button>

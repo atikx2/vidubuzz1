@@ -15,7 +15,7 @@ export async function onRequestGet({ request, env }: PagesContext<AdminEnv>) {
     const weekStart = new Date(now);
     weekStart.setUTCDate(now.getUTCDate() - 6);
     weekStart.setUTCHours(0, 0, 0, 0);
-    const [active, totals, days, topVideos] = await Promise.all([
+    const [active, totals, days, topVideos, modelCount] = await Promise.all([
       env.DB!.prepare("SELECT COUNT(*) AS count FROM analytics_visitors WHERE last_seen >= ?")
         .bind(new Date(now.getTime() - 5 * 60_000).toISOString()).first<CountRow>(),
       env.DB!.prepare(`SELECT COALESCE(SUM(event_type = 'video_view'), 0) AS video_views,
@@ -27,6 +27,7 @@ export async function onRequestGet({ request, env }: PagesContext<AdminEnv>) {
         .bind(weekStart.toISOString()).all<DayRow>(),
       env.DB!.prepare(`SELECT video_id, COUNT(*) AS count FROM analytics_events WHERE event_type = 'video_view'
         GROUP BY video_id ORDER BY count DESC, video_id ASC LIMIT 5`).all<TopRow>(),
+      (async () => { try { return await env.DB!.prepare("SELECT COUNT(*) AS count FROM models").first<CountRow>(); } catch { return null; } })(),
     ]);
 
     const counts = new Map((days.results ?? []).map((row) => [row.day, Number(row.count)]));
@@ -43,7 +44,8 @@ export async function onRequestGet({ request, env }: PagesContext<AdminEnv>) {
       totalPageViews: Number(totals?.page_views ?? 0),
       viewsToday: Number(totals?.views_today ?? 0),
       totalVideos: videos.length,
-      totalModels: performers.length,
+      totalModels: modelCount ? Number(modelCount.count) : performers.length,
+      modelCatalogSource: modelCount ? "d1" : "demo",
       totalChannels: channelDirectory.length,
       totalCategories: categoryDirectory.length,
       last7Days,

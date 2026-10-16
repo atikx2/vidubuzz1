@@ -97,7 +97,13 @@ export const videos: Video[] = entries.map((entry, index) => {
 });
 
 export type PerformerProfile = {
-  id: number;
+  id: number | string;
+  countryCode?: string | null;
+  age?: number | null;
+  createdAt?: string;
+  seoTitle?: string;
+  imageAlt?: string;
+  source?: "admin" | "demo";
   slug: string;
   name: string;
   videos: string;

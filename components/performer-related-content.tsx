@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, PlayCircle, UserRound } from "lucide-react";
 import type { PerformerProfile, Video } from "@/lib/demo-content";
-import { channelDirectory, performers } from "@/lib/demo-content";
+import { channelDirectory } from "@/lib/demo-content";
+import { performers } from "@/lib/public-models";
 import { siteContent } from "@/lib/site-content";
 
 export function PerformerRelatedContent({ performer, videos }: { performer: PerformerProfile; videos: Video[] }) {

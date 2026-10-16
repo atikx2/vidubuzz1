@@ -4,13 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { Clock3, Eye, ThumbsDown, ThumbsUp } from "lucide-react";
 import type { Video } from "@/lib/demo-content";
-import { categoryDirectory, channelDirectory, performers } from "@/lib/demo-content";
+import { categoryDirectory, channelDirectory } from "@/lib/demo-content";
+import { performers } from "@/lib/public-model-cards";
 
 export function VideoPageInfo({ video }: { video: Video }) {
   const [reaction, setReaction] = useState<"like" | "dislike" | null>(null);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const channel = channelDirectory.find((item) => item.name === video.channel);
-  const performer = performers.find((item) => item.name === video.performer);
+  const performer = performers.find((item) => item.source === "demo" && item.name === video.performer);
   const categories = video.categories
     .map((slug) => categoryDirectory.find((item) => item.slug === slug))
     .filter((item) => item !== undefined);

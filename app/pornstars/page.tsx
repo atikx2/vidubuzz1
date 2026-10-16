@@ -8,6 +8,10 @@ export const metadata: Metadata = {
   description: siteContent.performersPageSubtitle,
   alternates: { canonical: "/pornstars/" },
   robots: { index: true, follow: true },
+  openGraph: { title: `${siteContent.performersPageTitle} | Vidubuzz`, description: siteContent.performersPageSubtitle,
+    url: "/pornstars/", type: "website", siteName: "Vidubuzz" },
+  twitter: { card: "summary", title: `${siteContent.performersPageTitle} | Vidubuzz`, description: siteContent.performersPageSubtitle },
+  other: { rating: "adult" },
 };
 
 export default function PornstarsPage() {

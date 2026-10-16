@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, PlayCircle, UserRound } from "lucide-react";
 import type { DirectoryChannel, Video } from "@/lib/demo-content";
-import { channelDirectory, performers } from "@/lib/demo-content";
+import { channelDirectory } from "@/lib/demo-content";
+import { performers } from "@/lib/public-models";
 import { siteContent } from "@/lib/site-content";
 
 export function ChannelRelatedContent({ channel, videos }: { channel: DirectoryChannel; videos: Video[] }) {
@@ -45,7 +46,7 @@ export function ChannelRelatedContent({ channel, videos }: { channel: DirectoryC
           </div>
           <div className="channel-related-scroll" aria-label={`Performers featured on ${channel.name}`} tabIndex={0}>
             {featuredNames.map((name, index) => {
-              const performer = performers.find((item) => item.name === name);
+              const performer = performers.find((item) => item.source === "demo" && item.name === name);
               return (
                 <div className="related-performer-card" key={name}>
                   <span className={`related-performer-image portrait-${(index % 3) + 1}`}>

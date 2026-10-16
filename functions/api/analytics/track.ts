@@ -1,4 +1,5 @@
 import { categoryDirectory, channelDirectory, performers, videos } from "../../../lib/demo-content";
+import modelRoutes from "../../../.generated/model-meta.json";
 import {
   ApiError, apiErrorResponse, jsonResponse, readJsonObject, sameOriginRequest, sha256,
   type AdminEnv, type PagesContext,
@@ -11,7 +12,7 @@ const publicPaths = new Set([
   ...videos.map((video) => `/video/${video.id}`),
   ...categoryDirectory.map((category) => `/categories/${category.slug}`),
   ...channelDirectory.map((channel) => `/${channel.slug}`),
-  ...performers.map((performer) => `/${performer.slug}`),
+  ...(modelRoutes.source === "d1" ? modelRoutes.slugs : performers.map((performer) => performer.slug)).map((slug) => `/${slug}`),
 ]);
 
 export async function onRequestPost({ request, env }: PagesContext<AdminEnv>) {

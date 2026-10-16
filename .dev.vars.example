@@ -11,3 +11,10 @@ R2_BUCKET_NAME=""
 R2_PUBLIC_BASE_URL=""
 R2_ACCESS_KEY_ID=""
 R2_SECRET_ACCESS_KEY=""
+# Static model publishing: see docs/models-setup.md.
+# Add these privately to the Pages build + Functions environment; never use NEXT_PUBLIC_* for secrets.
+D1_DATABASE_ID=""
+D1_READ_TOKEN=""
+PAGES_DEPLOY_HOOK=""
+# Public canonical HTTPS origin (not a secret).
+NEXT_PUBLIC_SITE_URL="https://vidubuzz.top"

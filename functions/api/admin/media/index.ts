@@ -13,9 +13,11 @@ export async function onRequestGet({ request, env }: PagesContext<MediaEnv>) {
     const purpose = search.get("purpose");
     if (purpose && !isMediaPurpose(purpose)) throw new ApiError("Invalid media filter.", 400);
     const page = Number(search.get("page") ?? 1);
+    const kind = search.get("kind");
+    if (kind && kind !== "image" && kind !== "preview") throw new ApiError("Invalid media kind.", 400);
     if (!Number.isSafeInteger(page) || page < 1 || page > 10000) throw new ApiError("Invalid media page.", 400);
     const pageSize = 24;
-    const filter = purpose ? " AND purpose = ?" : "";
+    const filter = (purpose ? " AND purpose = ?" : "") + (kind === "image" ? " AND content_type LIKE 'image/%'" : kind === "preview" ? " AND content_type LIKE 'video/%'" : "");
     const values: Array<string | number> = purpose ? [session.email, purpose] : [session.email];
     const [rows, count] = await Promise.all([
       env.DB!.prepare(`SELECT * FROM media_assets WHERE uploader_email = ? AND status = 'ready'${filter}
